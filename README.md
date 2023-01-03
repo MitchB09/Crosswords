@@ -1,6 +1,6 @@
-# Magic 8 Ball
+# Crosswords
 
-Like the shake of a Magic 8 Ball, gives a response to your ever pressing question
+Allows for creating, and cooperatively doing crossword puzzles 
 
 ## Running UI
 
@@ -10,6 +10,15 @@ To build and run the ui for the first time, execute the following scripts. On su
 cd ui
 npm install
 npm start
+```
+
+## Running Mock Server
+
+By default ui is configured to run against mock database
+
+```bash
+cd ui
+npm run startapi
 ```
 
 ## Deploying application
