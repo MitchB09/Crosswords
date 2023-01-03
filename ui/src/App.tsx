@@ -1,15 +1,21 @@
-import React, { useState } from "react";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import "./App.css";
-import Board from "./board";
+import Board from "./components/board";
+import List from "./components/list";
 
 function App() {
-
   return (
-    <div className="App">
-      <div className="App-header">
-        <Board id={1} />
+    <Router>
+      <div className="App">
+        <div className="App-header">
+          <Routes>
+            <Route path="/:id" element={<Board />} />
+            <Route path="/" element={<List />} />
+          </Routes>
+        </div>
       </div>
-    </div>
+    </Router>
   );
 }
 

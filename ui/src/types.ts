@@ -9,3 +9,8 @@ export interface CrosswordBoard {
   cells: CrosswordCell[][]
   date?: Date
 }
+
+export enum BoardMode {
+  CONSTRUCTION,
+  FILLING
+}

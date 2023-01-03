@@ -24,4 +24,6 @@
 
 .value {
   position: relative;
+  margin: '0em';
+  padding: '0em';
 }

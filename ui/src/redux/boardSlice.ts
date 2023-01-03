@@ -1,24 +1,32 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import axios from 'axios'
-import { CrosswordBoard } from '../types';
+import { CrosswordBoard, BoardMode, CrosswordCell } from '../types';
 import type { RootState } from './store'
 
 // Define the initial state using that type
 interface CrosswordBoardState {
   status: string,
   board?: CrosswordBoard,
+  boards?: CrosswordBoard[],
+  mode: BoardMode,
 }
 
 const initialState: CrosswordBoardState = {
   status: 'idle',
+  mode: BoardMode.FILLING
 }
 
-// The function below is called a thunk and allows us to perform async logic. It
-// can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
-// will call the thunk with the `dispatch` function as the first argument. Async
-// code can then be executed and other actions can be dispatched. Thunks are
-// typically used to make async requests.
-export const fetchBoard = createAsyncThunk('board/fetchBoard', async (id: number) => {
+export interface CellUpdate {
+  row: number,
+  column: number,
+  cell: CrosswordCell,
+}
+
+export const fetchBoards = createAsyncThunk('board/fetchBoards', async () => {
+  const { data } = await axios.get(`/boards`);
+  return data;
+});
+export const fetchBoard = createAsyncThunk('board/fetchBoard', async (id: string) => {
   const { data } = await axios.get(`/boards/${id}`);
   return data;
 });
@@ -31,10 +39,32 @@ export const boardSlice = createSlice({
   name: 'board',
   initialState: initialState,
   reducers: {
+    setMode: (state, action: PayloadAction<BoardMode>) => {
+      state.mode = action.payload
+    },
+    updateCell: (state, action: PayloadAction<CellUpdate>) => {
+      if (!state.board) {
+        throw Error('No board selected for update');
+      }
+      const { row, column, cell } = action.payload;
+      const { board } = state;
 
+      board.cells[row][column] = cell;
+      state.board = board;
+    },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchBoards.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchBoards.fulfilled, (state, action) => {
+        state.status = 'idle';
+        state.boards = action.payload;
+      })
+      .addCase(fetchBoards.rejected, (state) => {
+        state.status = 'failed';
+      })
       .addCase(fetchBoard.pending, (state) => {
         state.status = 'loading';
       })
@@ -57,6 +87,9 @@ export const boardSlice = createSlice({
       });
   },
 })
+
+// Action creators are generated for each case reducer function
+export const { setMode, updateCell } = boardSlice.actions
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectBoard = (state: RootState) => state.crosswordBoard
