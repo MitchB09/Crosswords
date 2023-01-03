@@ -1,0 +1,12 @@
+{
+  "name": "list-options",
+  "version": "0.0.1",
+  "description": "Get list of items from DynamoDB ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "mitch.bilensky",
+  "license": "ISC",
+  "dependencies": {}
+}

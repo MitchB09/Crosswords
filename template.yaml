@@ -1,0 +1,122 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: simple-lists
+
+Parameters:
+  Stage:
+    Type: String
+    Description: The Stage where the application is running in, e.g., dev, prod.
+  
+Conditions:
+  IsProduction: !Equals 
+    - !Ref Stage
+    - master
+
+Globals:
+  Function:
+    Timeout: 5
+    Handler: index.handler
+    Runtime: nodejs12.x
+
+Resources:
+
+  ListApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        AddDefaultAuthorizerToCorsPreflight: false
+      Cors:
+        AllowOrigin: "'*'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Amz-Security-Token'"
+        AllowMethods: "'GET,POST,OPTIONS,PUT,DELETE'"
+        MaxAge: "'600'"
+
+  GetPublicLists:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: lambdas/list
+      Policies:
+      - AWSLambdaBasicExecutionRole # AWS Managed Policy
+      Events:
+        RestApiEvent:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /
+            Method: get
+            Auth:
+              Authorizer: NONE
+            RestApiId:
+              Ref: ListApiGateway
+
+  S3Bucket:
+    Type: AWS::S3::Bucket
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+      # Restricting access to cloudfront only.
+        Statement:
+          - Effect: Allow
+            Action: 's3:GetObject'
+            Resource:
+              - !Sub "arn:aws:s3:::${S3Bucket}/*"
+            Principal:
+              AWS: !Sub "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}"
+
+
+  CloudFrontOriginAccessIdentity:
+    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: 'Serverless website OA'
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases: 
+          - !If 
+            - IsProduction 
+            - !Sub crosswords.bilensky.ca
+            - !Ref "AWS::NoValue"
+        Origins:
+        - Id: s3-website
+          DomainName: !GetAtt S3Bucket.DomainName
+          S3OriginConfig:
+            # Restricting Bucket access through an origin access identity
+            OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
+        Enabled: true
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          Compress: true
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          ForwardedValues:
+            QueryString: false
+          TargetOriginId: s3-website
+          ViewerProtocolPolicy : redirect-to-https
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          SslSupportMethod: 'sni-only'
+          AcmCertificateArn: !Sub arn:aws:acm:us-east-1:${AWS::AccountId}:certificate/615eac8a-2629-404b-920f-a13786a50626
+          MinimumProtocolVersion: 'TLSv1.2_2019'
+
+
+Outputs:
+  S3Bucket: 
+    Description: S3 Bucket Name
+    Value: !Ref S3Bucket
+  ApiEndpoint:
+    Description: API Gateway endpoint URL for Prod stage for GetLists function
+    Value: !Sub https://${ListApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/
+  CloudFrontDisribution:
+    Description: CloudFront Distibution Id
+    Value: !Ref CloudFrontDistribution
+  CloudFrontDomain:
+    Description: CloudFront Domain Name
+    Value: !GetAtt CloudFrontDistribution.DomainName

@@ -1,0 +1,63 @@
+.App {
+  text-align: center;
+  background-color: #c9c9c9;
+}
+
+.App-header {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.shakeBtn {
+  padding-top: 10vh;
+}
+
+.fadeIn {
+  margin: 20vh;
+  animation-duration: 2s;
+  animation-name: fadeIn;
+}
+
+.askAgain {
+  text-decoration: none;
+  font-size: calc(10px + 1.2vmin);
+  animation-duration: 5s;
+  animation-name: delayedFadeIn;
+}
+
+.askAgain:visited {
+  text-decoration: none;
+  color: inherit;
+}
+
+.askAgain:hover {
+  text-decoration: underline;
+  color: inherit;
+}
+
+@keyframes fadeIn {
+  from {
+    color: rgb(255, 255, 255, 0);
+  }
+
+  to {
+    color: rgb(255, 255, 255, 1);
+  }
+}
+
+@keyframes delayedFadeIn {
+  from {
+    color: rgb(255, 255, 255, 0);
+  }
+
+  50% {
+    color: rgb(255, 255, 255, 0);
+  }
+
+  to {
+    color: rgb(255, 255, 255, 1);
+  }
+}

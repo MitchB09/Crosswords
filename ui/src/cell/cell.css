@@ -1,0 +1,27 @@
+.cell {
+  border: 1px solid black;
+  background-color: white;
+  color: black;
+  height: 2em;
+  width: 2em;
+  position: relative;
+}
+
+.block {
+  border: 1px solid black;
+  background-color: black;
+  height: 2em;
+  width: 2em;
+}
+
+.number {
+  font-size: 0.75em;
+  color: black;
+  position: relative;
+  top: -0.5em;
+  padding: 0.1em;
+}
+
+.value {
+  position: relative;
+}
