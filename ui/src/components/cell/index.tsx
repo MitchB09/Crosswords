@@ -43,7 +43,7 @@ function Cell(props: CellProps) {
         >
           <TextField
             variant="filled"
-            value={cell.number}
+            value={cell.number || ''}
             className="value"
             onChange={(event) => {
               const val = event.target.value;
@@ -81,7 +81,7 @@ function Cell(props: CellProps) {
           <div style={{ position: 'relative', width: '0', height: '0' }}><span className="number">{cell.number}</span></div>
           <TextField
             variant="filled"
-            value={cell.value}
+            value={cell.value || ''}
             className="value"
             onChange={(event) => {
               dispatch(updateCell({ row, column, cell: { ...cell, value: event.target.value.charAt(event.target.value.length - 1).toUpperCase() }}))

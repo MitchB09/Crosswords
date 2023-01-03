@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
 import Grid from "@mui/material/Grid";
-import { fetchBoards } from "../../redux/boardSlice";
+import { fetchBoards, postBoard } from "../../redux/boardSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Paper from "@mui/material/Paper";
 import { Link } from "react-router-dom";
+import Button from "@mui/material/Button";
 
 function List() {
 
@@ -25,7 +26,7 @@ function List() {
       >
         {boards && boards.map(board => {
           return (
-            <Link to={`/${board.id}`}>
+            <Link key={`${board.id}`} to={`/${board.id}`}>
               <Grid item>
                 <Paper
                   elevation={3}
@@ -33,7 +34,6 @@ function List() {
                     width: '5em',
                     height: '5em',
                   }}
-                  variant="outlined"
                 >
                   {board.title}
                 </Paper>
@@ -42,6 +42,26 @@ function List() {
           )
         })}
       </Grid>
+      <Button
+        variant="contained"
+        onClick={() => {
+          const cells = [];
+          for (let i = 0; i < 5; i++) {
+            const row = [];
+            for (let j = 0; j < 5; j++) {
+              row.push({});
+            }
+            cells.push(row);
+          }
+          dispatch(postBoard({
+            title: 'Test 1234',
+            cells,
+            id: crypto.randomUUID(),
+          }));
+        }}
+      >
+        Create
+      </Button>
     </>
   )
 }

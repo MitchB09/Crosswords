@@ -7,13 +7,14 @@ import type { RootState } from './store'
 interface CrosswordBoardState {
   status: string,
   board?: CrosswordBoard,
-  boards?: CrosswordBoard[],
+  boards: CrosswordBoard[],
   mode: BoardMode,
 }
 
 const initialState: CrosswordBoardState = {
   status: 'idle',
-  mode: BoardMode.FILLING
+  mode: BoardMode.FILLING,
+  boards: [],
 }
 
 export interface CellUpdate {
@@ -26,13 +27,21 @@ export const fetchBoards = createAsyncThunk('board/fetchBoards', async () => {
   const { data } = await axios.get(`/boards`);
   return data;
 });
+
 export const fetchBoard = createAsyncThunk('board/fetchBoard', async (id: string) => {
   const { data } = await axios.get(`/boards/${id}`);
   return data;
 });
+
 export const postBoard = createAsyncThunk('board/postBoard', async (board: CrosswordBoard) => {
-  const { data } = await axios.post('/boards', board);
-  return data;
+  board.id = crypto.randomUUID();
+  await axios.post('/boards', board);
+  return board;
+});
+
+export const putBoard = createAsyncThunk('board/putBoard', async (board: CrosswordBoard) => {
+  await axios.put(`/boards/${board.id}`, board);
+  return board;
 });
 
 export const boardSlice = createSlice({
@@ -80,9 +89,18 @@ export const boardSlice = createSlice({
       })
       .addCase(postBoard.fulfilled, (state, action) => {
         state.status = 'idle';
-        state.board = action.payload;
+        state.boards = [...state.boards, action.payload];
       })
       .addCase(postBoard.rejected, (state) => {
+        state.status = 'failed';
+      })
+      .addCase(putBoard.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(putBoard.fulfilled, (state, action) => {
+        state.status = 'idle';
+      })
+      .addCase(putBoard.rejected, (state) => {
         state.status = 'failed';
       });
   },

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import Cell from "../cell";
 import { useParams } from 'react-router-dom';
-import { fetchBoard, setMode } from "../../redux/boardSlice";
+import { fetchBoard, putBoard, setMode } from "../../redux/boardSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { BoardMode } from "../../types";
 import "./board.css";
@@ -77,7 +77,20 @@ function Board() {
           </Grid>
         }
         <Grid item>
-
+          <Button
+            variant="contained"
+            style={{ width: '100%' }}
+            onClick={() => {
+              if (!board) {
+                throw Error("No board selected")
+              }
+              dispatch(putBoard(board));
+            }}
+          >
+            Save
+          </Button>
+        </Grid>
+        <Grid item>
           <Button
             variant="contained"
             style={{ width: '100%' }}
