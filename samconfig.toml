@@ -9,3 +9,16 @@ region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 parameter_overrides = "Stage=\"master\""
+
+[dev]
+[dev.deploy]
+[dev.deploy.parameters]
+stack_name = "crossword-dev"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1iriw7pcgy02w"
+s3_prefix = "crossword-dev"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+parameter_overrides = "Stage=\"dev\""
+image_repositories = []

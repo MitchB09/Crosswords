@@ -22,6 +22,14 @@ npm run startapi
 ```
 
 ## Deploying application
+### Deploying Dev
+
+Deploying to dev environment
+
+```bash
+sam build --config-file samconfig.toml --config-env dev
+sam deploy --config-file samconfig.toml --config-env dev
+```
 
 To build and deploy your application for the first time, run the following in your shell:
 

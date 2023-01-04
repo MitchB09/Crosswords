@@ -16,39 +16,149 @@ Globals:
   Function:
     Timeout: 5
     Handler: index.handler
-    Runtime: nodejs12.x
+    Runtime: nodejs16.x
+    Environment:
+      Variables:
+        BOARDS_TABLE: !Ref CrosswordTable
 
 Resources:
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      UserPoolName: !Sub '${AWS::StackName}-${Stage}-user-pool'
+      UsernameConfiguration:
+        CaseSensitive: false
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 6
+          RequireLowercase: True
+          RequireNumbers: False
+          RequireSymbols: False
+          RequireUppercase: True
 
-  ListApiGateway:
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub '${AWS::StackName}-${Stage}-user-pool-client'
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - USER_PASSWORD_AUTH
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      AllowedOAuthFlowsUserPoolClient: true
+      SupportedIdentityProviders:
+        - COGNITO
+      CallbackURLs:
+        - https://crosswords.bilensky.ca/
+      LogoutURLs:
+        - https://crosswords.bilensky.ca/
+      AllowedOAuthScopes:
+        - email
+        - phone
+        - openid
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties: 
+      Domain: !Sub '${AWS::StackName}-${Stage}'
+      UserPoolId: !Ref UserPool
+
+  AutoApproveUser:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: lambdas/cognito/auto-approve
+      Policies:
+      - AWSLambdaBasicExecutionRole # AWS Managed Policy
+      Events:
+        CognitoPreSignUpEvent:
+          Type: Cognito
+          Properties:
+            UserPool:
+              Ref: UserPool
+            Trigger: PreSignUp
+
+  CrosswordTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: 'userId'
+          AttributeType: 'S'
+        - AttributeName: 'id'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'userId'
+          KeyType: 'HASH'
+        - AttributeName: 'id'
+          KeyType: 'RANGE'
+      BillingMode: PAY_PER_REQUEST
+
+  ApiGateway:
     Type: AWS::Serverless::Api
     Properties:
       StageName: !Ref Stage
       Auth:
         DefaultAuthorizer: CognitoAuthorizer
         AddDefaultAuthorizerToCorsPreflight: false
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
       Cors:
         AllowOrigin: "'*'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Amz-Security-Token'"
         AllowMethods: "'GET,POST,OPTIONS,PUT,DELETE'"
         MaxAge: "'600'"
 
-  GetPublicLists:
+  GetBoards:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: lambdas/list
       Policies:
       - AWSLambdaBasicExecutionRole # AWS Managed Policy
+      - Version: '2012-10-17'         # Inline Policy
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:Query
+            Resource: 
+              - !GetAtt CrosswordTable.Arn
       Events:
         RestApiEvent:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /
+            Path: /boards
             Method: get
             Auth:
               Authorizer: NONE
             RestApiId:
-              Ref: ListApiGateway
+              Ref: ApiGateway
+  
+  GetBoard:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: lambdas/get
+      Policies:
+      - AWSLambdaBasicExecutionRole # AWS Managed Policy
+      - Version: '2012-10-17'         # Inline Policy
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:Query
+            Resource: 
+              - !GetAtt CrosswordTable.Arn
+      Events:
+        RestApiEvent:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /boards/{id}
+            Method: get
+            Auth:
+              Authorizer: NONE
+            RestApiId:
+              Ref: ApiGateway
 
   S3Bucket:
     Type: AWS::S3::Bucket
@@ -106,16 +216,15 @@ Resources:
           AcmCertificateArn: !Sub arn:aws:acm:us-east-1:${AWS::AccountId}:certificate/615eac8a-2629-404b-920f-a13786a50626
           MinimumProtocolVersion: 'TLSv1.2_2019'
 
-
 Outputs:
   S3Bucket: 
     Description: S3 Bucket Name
     Value: !Ref S3Bucket
   ApiEndpoint:
     Description: API Gateway endpoint URL for Prod stage for GetLists function
-    Value: !Sub https://${ListApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/
+    Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/
   CloudFrontDisribution:
-    Description: CloudFront Distibution Id
+    Description: CloudFront Distribution Id
     Value: !Ref CloudFrontDistribution
   CloudFrontDomain:
     Description: CloudFront Domain Name

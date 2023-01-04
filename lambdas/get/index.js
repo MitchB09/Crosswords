@@ -3,8 +3,7 @@ const jwt_decode = require("jwt-decode");
 
 exports.handler = function (event, context, callback) {
   const ddb = new AWS.DynamoDB.DocumentClient();
-  let boardsTable = process.env.BOARDS_TABLE;
-
+  const boardsTable = process.env.BOARDS_TABLE;
   let userId = '';
   if (event?.headers?.Authorization) {
     var decoded = jwt_decode(event.headers.Authorization);
@@ -16,13 +15,15 @@ exports.handler = function (event, context, callback) {
   var params = {
     ExpressionAttributeValues: {
       ":userId": userId,
+      ":id": decodeURI(event.pathParameters.id),
     },
-    KeyConditionExpression: "userId = :userId",
+    KeyConditionExpression: "userId = :userId and id = :id",
     TableName: boardsTable,
   };
 
   ddb.query(params, function (err, data) {
     if (err) {
+      // an error occurred
       callback(null, {
         statusCode: 500,
         body: JSON.stringify({
@@ -33,15 +34,25 @@ exports.handler = function (event, context, callback) {
         },
         isBase64Encoded: false,
       });
+    } else if (!data.Items) {
+      console.log(data);
+      callback(null, {
+        statusCode: 404,
+        body: JSON.stringify("No Option Found"),
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+        isBase64Encoded: false,
+      });
     } else {
       // successful response
       console.log(data);
       callback(null, {
         statusCode: 200,
+        body: JSON.stringify(data.Items[0]),
         headers: {
           "Access-Control-Allow-Origin": "*",
         },
-        body: JSON.stringify(data.Items),
         isBase64Encoded: false,
       });
     }

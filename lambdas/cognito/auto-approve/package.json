@@ -1,7 +1,7 @@
 {
-  "name": "list-options",
+  "name": "auto-approve",
   "version": "0.0.1",
-  "description": "Get list of items from DynamoDB ",
+  "description": "Auto-Approve User on Creation",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
