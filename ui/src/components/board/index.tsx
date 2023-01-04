@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { BoardMode } from "../../types";
 import "./board.css";
 import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 
 function Board() {
   const { id } = useParams();
@@ -22,6 +23,7 @@ function Board() {
 
   return (
     <>
+      <Typography variant="h5">{board?.title}</Typography>
       <Grid container direction='column' alignContent='center' justifyContent='center' >
         {board && board.cells.map((row, rowIndex) => {
           return (
