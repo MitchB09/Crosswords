@@ -1,15 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import { fetchBoards, postBoard } from "../../redux/boardSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Paper from "@mui/material/Paper";
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
+import CreateDialog from "../createdialog";
+import { CrosswordBoard } from "../../types";
 
 function List() {
 
   const { boards } = useAppSelector((state) => state.crosswordBoard);
   const dispatch = useAppDispatch();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
     dispatch(fetchBoards());
@@ -43,25 +46,19 @@ function List() {
         })}
       </Grid>
       <Button
-        variant="contained"
         onClick={() => {
-          const cells = [];
-          for (let i = 0; i < 5; i++) {
-            const row = [];
-            for (let j = 0; j < 5; j++) {
-              row.push({});
-            }
-            cells.push(row);
-          }
-          dispatch(postBoard({
-            title: 'Test 1234',
-            cells,
-            id: crypto.randomUUID(),
-          }));
+          setIsOpen(true);
         }}
       >
         Create
       </Button>
+      <CreateDialog
+        isOpen={isOpen}
+        handleCreate={(board: CrosswordBoard) => {
+          dispatch(postBoard(board));
+        }}
+        handleClose={() => { setIsOpen(false) }}
+      />
     </>
   )
 }
