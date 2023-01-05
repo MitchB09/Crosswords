@@ -1,17 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
-import { useAuth, useUser } from "./auth/hooks";
+import { useAuth } from "./auth/hooks";
 import Board from "./components/board";
 import List from "./components/list";
 import Login from "./components/login";
 
 function App() {
   const { user } = useAuth();
-  
-  useEffect(() => {
-    console.dir(user?.getUsername())
-  }, [user])
 
   return (
     <Router>

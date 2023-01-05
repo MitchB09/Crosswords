@@ -159,6 +159,39 @@ Resources:
               Authorizer: NONE
             RestApiId:
               Ref: ApiGateway
+  
+  CreateUpdateBoard:
+      Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+      Properties:
+        CodeUri: lambdas/create_update
+        Policies:
+          - AWSLambdaBasicExecutionRole # AWS Managed Policy
+          - Version: '2012-10-17'         # Inline Policy
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                Resource: 
+                  - !GetAtt CrosswordTable.Arn
+        Events:
+          CreateEvent:
+            Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+            Properties:
+              Path: /boards
+              Method: post
+              Auth:
+                Authorizer: NONE
+              RestApiId:
+                Ref: ApiGateway
+          UpdateEvent:
+            Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+            Properties:
+              Path: /boards/{id}
+              Method: put
+              Auth:
+                Authorizer: NONE
+              RestApiId:
+                Ref: ApiGateway
 
   S3Bucket:
     Type: AWS::S3::Bucket
