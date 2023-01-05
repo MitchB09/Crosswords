@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import axios from 'axios'
+import api from '../api'
 import { CrosswordBoard, BoardMode, CrosswordCell } from '../types';
 import type { RootState } from './store'
 
@@ -23,24 +23,34 @@ export interface CellUpdate {
   cell: CrosswordCell,
 }
 
+export interface GetBoardRequest {
+  id: string,
+  shareCode?: string,
+}
+
 export const fetchBoards = createAsyncThunk('board/fetchBoards', async () => {
-  const { data } = await axios.get(`/boards`);
+  const { data } = await api.get(`/boards`);
   return data;
 });
 
-export const fetchBoard = createAsyncThunk('board/fetchBoard', async (id: string) => {
-  const { data } = await axios.get(`/boards/${id}`);
+export const fetchBoard = createAsyncThunk('board/fetchBoard', async (req: GetBoardRequest) => {
+  const { id, shareCode } = req;
+  let params = { }
+  if (shareCode) {
+    params = { ...params, shareCode: shareCode }
+  }
+  const { data } = await api.get(`/boards/${id}`, { params: params });
   return data;
 });
 
 export const postBoard = createAsyncThunk('board/postBoard', async (board: CrosswordBoard) => {
   board.id = crypto.randomUUID();
-  await axios.post('/boards', board);
+  await api.post('/boards', board);
   return board;
 });
 
 export const putBoard = createAsyncThunk('board/putBoard', async (board: CrosswordBoard) => {
-  await axios.put(`/boards/${board.id}`, board);
+  await api.put(`/boards/${board.id}`, board);
   return board;
 });
 

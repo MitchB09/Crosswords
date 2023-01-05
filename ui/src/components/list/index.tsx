@@ -7,16 +7,20 @@ import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
 import CreateDialog from "../createdialog";
 import { CrosswordBoard } from "../../types";
+import { useAuth } from "../../auth/hooks";
 
 function List() {
 
   const { boards } = useAppSelector((state) => state.crosswordBoard);
+  const { user } = useAuth();
   const dispatch = useAppDispatch();
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    dispatch(fetchBoards());
-  }, [dispatch]);
+    if (user) {
+      dispatch(fetchBoards());
+    }
+  }, [dispatch, user]);
 
   return (
     <>

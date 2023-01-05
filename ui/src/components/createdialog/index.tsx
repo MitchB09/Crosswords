@@ -9,6 +9,7 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
+import { useAuth } from "../../auth/hooks";
 
 interface DialogProps {
   isOpen: boolean;
@@ -18,12 +19,16 @@ interface DialogProps {
 
 function CreateDialog(props: DialogProps) {
   const { isOpen, handleCreate, handleClose } = props;
+  const { user } = useAuth();
 
   const [title, setTitle] = useState<string>('');
   const [width, setWidth] = useState<number>(15);
   const [height, setHeight] = useState<number>(15);
 
   const createBoard = () => {
+    if (!user) {
+      throw Error("Cannot create a board without a user")
+    }
     const cells = [];
     for (let i = 0; i < width; i++) {
       const row = [];
@@ -35,7 +40,8 @@ function CreateDialog(props: DialogProps) {
     handleCreate({
       title,
       cells,
-      id: crypto.randomUUID()
+      id: crypto.randomUUID(),
+      userId: user.getUsername(),
     })
     handleClose();
   }

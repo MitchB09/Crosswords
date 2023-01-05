@@ -1,25 +1,30 @@
 import React, { useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import Cell from "../cell";
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { fetchBoard, putBoard, setMode } from "../../redux/boardSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { BoardMode } from "../../types";
 import "./board.css";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import { useUser } from "../../auth/hooks";
 
 function Board() {
   const { id } = useParams();
 
   const { board, mode } = useAppSelector((state) => state.crosswordBoard);
+  const user = useUser();
   const dispatch = useAppDispatch();
+  let [searchParams] = useSearchParams();
+
+  const shareCode = searchParams.get("shareCode");
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchBoard(id));
+      dispatch(fetchBoard({ id, shareCode: shareCode || undefined }));
     }
-  }, [id, dispatch]);
+  }, [id, shareCode, dispatch]);
 
   return (
     <>
@@ -64,7 +69,7 @@ function Board() {
             </Button>
           </Grid>
         }
-        {mode === BoardMode.FILLING &&
+        {user && board && user?.userId === board?.userId && mode === BoardMode.FILLING &&
           <Grid item>
 
             <Button

@@ -220,10 +220,16 @@ Outputs:
   S3Bucket: 
     Description: S3 Bucket Name
     Value: !Ref S3Bucket
+  CognitoUserPool: 
+    Description: Cognito User Pool Id
+    Value: !Ref UserPool
+  CognitoClient: 
+    Description: Cognito Client Id
+    Value: !Ref UserPoolClient
   ApiEndpoint:
     Description: API Gateway endpoint URL for Prod stage for GetLists function
     Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/
-  CloudFrontDisribution:
+  CloudFrontDistribution:
     Description: CloudFront Distribution Id
     Value: !Ref CloudFrontDistribution
   CloudFrontDomain:

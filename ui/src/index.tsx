@@ -1,10 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { Auth } from 'aws-amplify';
+
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux';
 import store from './redux/store';
+import AuthProvider from './auth/provider';
+
+Auth.configure({
+  Auth: {
+    mandatorySignIn: true,
+    region: process.env.REACT_APP_REGION,
+    userPoolId: process.env.REACT_APP_COGNITO_USER_POOL,
+    userPoolWebClientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
+  },
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -12,7 +24,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </Provider>
   </React.StrictMode>
 );

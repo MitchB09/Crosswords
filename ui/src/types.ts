@@ -5,6 +5,7 @@ export interface CrosswordCell {
 
 export interface CrosswordBoard {
   id: string,
+  userId: string,
   title?: string,
   cells: CrosswordCell[][]
   date?: Date
@@ -13,4 +14,8 @@ export interface CrosswordBoard {
 export enum BoardMode {
   CONSTRUCTION,
   FILLING
+}
+
+export interface User {
+  userId: string,
 }
