@@ -28,6 +28,11 @@ export interface GetBoardRequest {
   shareCode?: string,
 }
 
+export interface UpdateBoardRequest {
+  board: CrosswordBoard,
+  shareCode?: string,
+}
+
 export const fetchBoards = createAsyncThunk('board/fetchBoards', async () => {
   const { data } = await api.get(`/boards`);
   return data;
@@ -49,8 +54,13 @@ export const postBoard = createAsyncThunk('board/postBoard', async (board: Cross
   return board;
 });
 
-export const putBoard = createAsyncThunk('board/putBoard', async (board: CrosswordBoard) => {
-  await api.put(`/boards/${board.id}`, board);
+export const putBoard = createAsyncThunk('board/putBoard', async (req: UpdateBoardRequest) => {
+  const { board, shareCode } = req;
+  let params = { }
+  if (shareCode) {
+    params = { ...params, shareCode: shareCode }
+  }
+  await api.put(`/boards/${board.id}`, board, { params: params });
   return board;
 });
 

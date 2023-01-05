@@ -6,7 +6,7 @@ exports.handler = function (event, context, callback) {
   const boardsTable = process.env.BOARDS_TABLE;
   let userId = '';
   if (event.queryStringParameters && event.queryStringParameters['shareCode']) {
-    userId = event.queryStringParameters['shareCode'];
+    userId = atob(event.queryStringParameters['shareCode']);
   } else if (event?.headers?.Authorization) {
     var decoded = jwt_decode(event.headers.Authorization);
     userId = decoded["cognito:username"];

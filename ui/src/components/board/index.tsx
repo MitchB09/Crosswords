@@ -107,7 +107,7 @@ function Board() {
               if (!board) {
                 throw Error("No board selected");
               }
-              dispatch(putBoard(board));
+              dispatch(putBoard({ board, shareCode: shareCode || undefined }));
             }}
           >
             Save
@@ -119,7 +119,6 @@ function Board() {
             style={{ width: "100%" }}
             onClick={() => {
               console.dir(board);
-              console.dir(location);
             }}
           >
             Export
@@ -133,14 +132,14 @@ function Board() {
               onClick={() => {
                 navigator.clipboard
                   .writeText(
-                    `${window.location}?shareCode=${user?.getUsername()}`
+                    `${window.location}?shareCode=${btoa(user?.getUsername())}`
                   )
                   .then(
                     () => {
-                      /* clipboard successfully set */
+                      console.log('Copied')
                     },
                     () => {
-                      /* clipboard write failed */
+                      console.log('Failed to copy')
                     }
                   );
               }}

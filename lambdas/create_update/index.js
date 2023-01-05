@@ -6,9 +6,17 @@ exports.handler = (event, context, callback) => {
   const ddb = new AWS.DynamoDB.DocumentClient();
   let boardsTable = process.env.BOARDS_TABLE;
 
-  if (!event.headers.Authorization) {
+  if (event.queryStringParameters && event.queryStringParameters['shareCode']) {
+    userId = atob(event.queryStringParameters['shareCode']);
+  } else if (event?.headers?.Authorization) {
+    var decoded = jwt_decode(event.headers.Authorization);
+    userId = decoded["cognito:username"];
+  } else {
     callback(null, {
       statusCode: 401,
+      body: JSON.stringify({
+        Error: "No Auth or share code found",
+      }),
       headers: {
         "Access-Control-Allow-Origin": "*",
       },
@@ -16,8 +24,6 @@ exports.handler = (event, context, callback) => {
     });
   }
 
-  var decoded = jwt_decode(event.headers.Authorization);
-  const userId = decoded["cognito:username"];
   var board = JSON.parse(event.body);
   board.userId = userId;
 
