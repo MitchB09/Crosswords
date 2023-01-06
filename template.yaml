@@ -224,7 +224,7 @@ Resources:
           - !If 
             - IsProduction 
             - !Sub crosswords.bilensky.ca
-            - !Ref "AWS::NoValue"
+            - !Sub crosswords-dev.bilensky.ca
         Origins:
         - Id: s3-website
           DomainName: !GetAtt S3Bucket.DomainName
@@ -233,6 +233,11 @@ Resources:
             OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
         Enabled: true
         DefaultRootObject: index.html
+        CustomErrorResponse: 
+          ErrorCachingMinTTL: 10
+          ErrorCode: 403
+          ResponseCode: 200
+          ResponsePagePath: /index.html
         DefaultCacheBehavior:
           Compress: true
           AllowedMethods:
@@ -240,13 +245,13 @@ Resources:
             - HEAD
             - OPTIONS
           ForwardedValues:
-            QueryString: false
+            QueryString: true
           TargetOriginId: s3-website
           ViewerProtocolPolicy : redirect-to-https
         PriceClass: PriceClass_100
         ViewerCertificate:
           SslSupportMethod: 'sni-only'
-          AcmCertificateArn: !Sub arn:aws:acm:us-east-1:${AWS::AccountId}:certificate/615eac8a-2629-404b-920f-a13786a50626
+          AcmCertificateArn: !Sub arn:aws:acm:us-east-1:${AWS::AccountId}:certificate/be6c437a-760b-4ee4-9a89-a2bb7995e6ff
           MinimumProtocolVersion: 'TLSv1.2_2019'
 
 Outputs:

@@ -2,9 +2,9 @@ import React, { useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import Cell from "../cell";
 import { useLocation, useParams, useSearchParams } from "react-router-dom";
-import { fetchBoard, putBoard, setMode } from "../../redux/boardSlice";
+import { fetchBoard, putBoard, updateBoard, setMode } from "../../redux/boardSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { BoardMode } from "../../types";
+import { BoardMode, CrosswordCell } from "../../types";
 import "./board.css";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -71,17 +71,52 @@ function Board() {
         style={{ width: "15em", margin: "0.1rem" }}
       >
         {mode === BoardMode.CONSTRUCTION && (
-          <Grid item>
-            <Button
-              variant="contained"
-              style={{ width: "100%" }}
-              onClick={() => {
-                dispatch(setMode(BoardMode.FILLING));
-              }}
-            >
-              Fill
-            </Button>
-          </Grid>
+          <>
+            <Grid item>
+              <Button
+                variant="contained"
+                style={{ width: "100%" }}
+                onClick={() => {
+                  dispatch(setMode(BoardMode.FILLING));
+                }}
+              >
+                Fill
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                style={{ width: "100%" }}
+                onClick={() => {
+                  if (board?.cells) {
+                    //const updatedBoard = { ...board, cells: [] }
+                    const cells: CrosswordCell[][] = [];
+                    console.log("Number");
+                    let number = 1;
+                    board.cells.forEach((row, rowIndex) => {
+                      console.dir(`row ${rowIndex}`)
+                      const newRow: CrosswordCell[] = [];
+                      row.forEach((cell, colIndex) => {
+                        let newCell: CrosswordCell;
+                        console.dir(`cell [${rowIndex}][${colIndex}]`)
+                        if ((rowIndex === 0 || colIndex === 0 || board.cells[rowIndex -1][colIndex].value === '-'  || board.cells[rowIndex][colIndex-1].value === '-' ) && cell.value !== '-') {
+                          newCell = { ...cell, number: number };
+                          number++;
+                        } else {
+                          newCell = { ...cell };
+                        }
+                        newRow.push(newCell);
+                      });
+                      cells.push(newRow);
+                    });
+                    dispatch(updateBoard({ ...board, cells: cells }));
+                  }
+                }}
+              >
+                Number
+              </Button>
+            </Grid>
+          </>
         )}
         {user &&
           board &&
@@ -136,10 +171,10 @@ function Board() {
                   )
                   .then(
                     () => {
-                      console.log('Copied')
+                      console.log("Copied");
                     },
                     () => {
-                      console.log('Failed to copy')
+                      console.log("Failed to copy");
                     }
                   );
               }}

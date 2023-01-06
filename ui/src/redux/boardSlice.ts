@@ -81,6 +81,12 @@ export const boardSlice = createSlice({
       board.cells[row][column] = cell;
       state.board = board;
     },
+    updateBoard: (state, action: PayloadAction<CrosswordBoard>) => {
+      if (!state.board) {
+        throw Error('No board selected for update');
+      }
+      state.board = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -127,7 +133,7 @@ export const boardSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { setMode, updateCell } = boardSlice.actions
+export const { setMode, updateCell, updateBoard } = boardSlice.actions
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectBoard = (state: RootState) => state.crosswordBoard
