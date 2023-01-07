@@ -29,6 +29,7 @@ exports.handler = function (event, context, callback) {
       ":id": decodeURI(event.pathParameters.id),
     },
     KeyConditionExpression: "userId = :userId and id = :id",
+    ProjectionExpression: "userId, id, title, cells",
     TableName: boardsTable,
   };
 

@@ -40,7 +40,6 @@ function CreateDialog(props: DialogProps) {
     handleCreate({
       title,
       cells,
-      id: crypto.randomUUID(),
       userId: user.getUsername(),
     })
     handleClose();

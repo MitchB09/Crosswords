@@ -49,8 +49,8 @@ export const fetchBoard = createAsyncThunk('board/fetchBoard', async (req: GetBo
 });
 
 export const postBoard = createAsyncThunk('board/postBoard', async (board: CrosswordBoard) => {
-  board.id = crypto.randomUUID();
-  await api.post('/boards', board);
+  const { data } = await api.post('/boards', board);
+  board.id = data;
   return board;
 });
 
@@ -72,13 +72,19 @@ export const boardSlice = createSlice({
       state.mode = action.payload
     },
     updateCell: (state, action: PayloadAction<CellUpdate>) => {
-      if (!state.board) {
+      if (!state.board || !state.board.cells) {
         throw Error('No board selected for update');
       }
+
       const { row, column, cell } = action.payload;
       const { board } = state;
 
-      board.cells[row][column] = cell;
+      if (board.cells) {
+        board.cells[row][column] = cell;
+      } else {
+        throw Error('No board cells found for update');
+      }
+
       state.board = board;
     },
     updateBoard: (state, action: PayloadAction<CrosswordBoard>) => {

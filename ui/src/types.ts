@@ -4,10 +4,10 @@ export interface CrosswordCell {
 }
 
 export interface CrosswordBoard {
-  id: string,
+  id?: string,
   userId: string,
   title?: string,
-  cells: CrosswordCell[][]
+  cells?: CrosswordCell[][]
   date?: Date
 }
 

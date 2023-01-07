@@ -29,6 +29,7 @@ exports.handler = function (event, context, callback) {
       ":userId": userId,
     },
     KeyConditionExpression: "userId = :userId",
+    ProjectionExpression: "userId, id, title",
     TableName: boardsTable,
   };
 

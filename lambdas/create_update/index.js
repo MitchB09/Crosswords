@@ -42,7 +42,7 @@ exports.handler = (event, context, callback) => {
       });
     }
   } else {
-    board.id = cryptoRandomString({ length: 10 });
+    board.id = cryptoRandomString({ length: 10, type: 'url-safe' });
   }
 
   var params = {

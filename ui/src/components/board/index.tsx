@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import Cell from "../cell";
-import { useLocation, useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { fetchBoard, putBoard, updateBoard, setMode } from "../../redux/boardSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { BoardMode, CrosswordCell } from "../../types";
@@ -12,7 +12,6 @@ import { useAuth } from "../../auth/hooks";
 
 function Board() {
   const { id } = useParams();
-  const location = useLocation();
 
   const { board, mode } = useAppSelector((state) => state.crosswordBoard);
   const { user } = useAuth();
@@ -36,7 +35,7 @@ function Board() {
         alignContent="center"
         justifyContent="center"
       >
-        {board &&
+        {board && board.cells &&
           board.cells.map((row, rowIndex) => {
             return (
               <Grid
@@ -99,7 +98,7 @@ function Board() {
                       row.forEach((cell, colIndex) => {
                         let newCell: CrosswordCell;
                         console.dir(`cell [${rowIndex}][${colIndex}]`)
-                        if ((rowIndex === 0 || colIndex === 0 || board.cells[rowIndex -1][colIndex].value === '-'  || board.cells[rowIndex][colIndex-1].value === '-' ) && cell.value !== '-') {
+                        if (board.cells && cell.value !== '-' && (rowIndex === 0 || colIndex === 0 || board.cells[rowIndex -1][colIndex].value === '-'  || board.cells[rowIndex][colIndex-1].value === '-' )) {
                           newCell = { ...cell, number: number };
                           number++;
                         } else {
