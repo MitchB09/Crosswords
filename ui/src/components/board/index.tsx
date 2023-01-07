@@ -9,6 +9,7 @@ import "./board.css";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { useAuth } from "../../auth/hooks";
+import { useSnackbar } from "../snackbar/hooks";
 
 function Board() {
   const { id } = useParams();
@@ -16,6 +17,7 @@ function Board() {
   const { board, mode } = useAppSelector((state) => state.crosswordBoard);
   const { user } = useAuth();
   const dispatch = useAppDispatch();
+  const snackbar = useSnackbar();
   let [searchParams] = useSearchParams();
 
   const shareCode = searchParams.get("shareCode");
@@ -147,17 +149,6 @@ function Board() {
             Save
           </Button>
         </Grid>
-        <Grid item>
-          <Button
-            variant="contained"
-            style={{ width: "100%" }}
-            onClick={() => {
-              console.dir(board);
-            }}
-          >
-            Export
-          </Button>
-        </Grid>
         {user && board && user.getUsername() === board?.userId && (
           <Grid item>
             <Button
@@ -170,10 +161,10 @@ function Board() {
                   )
                   .then(
                     () => {
-                      console.log("Copied");
+                      snackbar.addSuccess('Copied');
                     },
                     () => {
-                      console.log("Failed to copy");
+                      snackbar.addError('Failed to Copy');
                     }
                   );
               }}
