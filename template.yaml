@@ -233,11 +233,11 @@ Resources:
             OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
         Enabled: true
         DefaultRootObject: index.html
-        CustomErrorResponse: 
-          ErrorCachingMinTTL: 10
-          ErrorCode: 403
-          ResponseCode: 200
-          ResponsePagePath: /index.html
+        CustomErrorResponses: 
+          - ErrorCachingMinTTL: 10
+            ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
         DefaultCacheBehavior:
           Compress: true
           AllowedMethods:
