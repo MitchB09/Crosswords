@@ -8,7 +8,8 @@ export interface CrosswordBoard {
   userId: string,
   title?: string,
   cells?: CrosswordCell[][]
-  date?: Date
+  date?: Date,
+  lastUpdated?: Date,
 }
 
 export enum BoardMode {

@@ -34,7 +34,7 @@ function List() {
         {boards && boards.map(board => {
           return (
             <Link key={`${board.id}`} to={`/${board.id}`}>
-              <Grid item>
+              <Grid item style={{ margin: '0.25em' }}>
                 <Paper
                   elevation={3}
                   style={{
@@ -50,6 +50,8 @@ function List() {
         })}
       </Grid>
       <Button
+        variant="contained"
+        style={{ margin: '1em' }}
         onClick={() => {
           setIsOpen(true);
         }}

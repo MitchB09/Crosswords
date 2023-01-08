@@ -45,6 +45,8 @@ exports.handler = (event, context, callback) => {
     board.id = cryptoRandomString({ length: 10, type: 'url-safe' });
   }
 
+  board.lastUpdated = Date.now();
+
   var params = {
     TableName: boardsTable,
     Item: board,

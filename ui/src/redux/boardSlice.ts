@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import api from '../api'
+import { useSnackbar } from '../components/snackbar/hooks';
 import { CrosswordBoard, BoardMode, CrosswordCell } from '../types';
 import type { RootState } from './store'
 
@@ -63,6 +64,7 @@ export const putBoard = createAsyncThunk('board/putBoard', async (req: UpdateBoa
   await api.put(`/boards/${board.id}`, board, { params: params });
   return board;
 });
+
 
 export const boardSlice = createSlice({
   name: 'board',

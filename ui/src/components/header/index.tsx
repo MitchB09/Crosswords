@@ -19,7 +19,9 @@ function Header() {
       }}
     >
       <Grid item>
-        <Typography variant="h5">Crosswords</Typography>
+        <Link href="/" style={{ color: 'white', textDecoration: "none" }}>
+          <Typography variant="h5">Crosswords</Typography>
+        </Link>
       </Grid>
       {user ? (
         <Grid item>{user.getUsername()}</Grid>
