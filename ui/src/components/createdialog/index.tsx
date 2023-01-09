@@ -48,11 +48,10 @@ function CreateDialog(props: DialogProps) {
 
   return (
     <Dialog open={isOpen} onClose={handleClose}>
-      <DialogTitle>Subscribe</DialogTitle>
+      <DialogTitle>Create Puzzle</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          To subscribe to this website, please enter your email address here. We
-          will send updates occasionally.
+          Pick the size of the puzzle and then you'll be able to fill the grid and set the numbers
         </DialogContentText>
         <Grid
           container

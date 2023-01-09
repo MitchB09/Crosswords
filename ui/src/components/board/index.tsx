@@ -90,16 +90,13 @@ function Board() {
                 style={{ width: "100%" }}
                 onClick={() => {
                   if (board?.cells) {
-                    //const updatedBoard = { ...board, cells: [] }
                     const cells: CrosswordCell[][] = [];
                     console.log("Number");
                     let number = 1;
                     board.cells.forEach((row, rowIndex) => {
-                      console.dir(`row ${rowIndex}`)
                       const newRow: CrosswordCell[] = [];
                       row.forEach((cell, colIndex) => {
                         let newCell: CrosswordCell;
-                        console.dir(`cell [${rowIndex}][${colIndex}]`)
                         if (board.cells && cell.value !== '-' && (rowIndex === 0 || colIndex === 0 || board.cells[rowIndex -1][colIndex].value === '-'  || board.cells[rowIndex][colIndex-1].value === '-' )) {
                           newCell = { ...cell, number: number };
                           number++;
@@ -143,7 +140,8 @@ function Board() {
               if (!board) {
                 throw Error("No board selected");
               }
-              dispatch(putBoard({ board, shareCode: shareCode || undefined }));
+              dispatch(putBoard({ board, shareCode: shareCode || undefined }))
+                .then(() => snackbar.addSuccess('Saved'));
             }}
           >
             Save

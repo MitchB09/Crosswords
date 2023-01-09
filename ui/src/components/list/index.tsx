@@ -40,6 +40,7 @@ function List() {
                   style={{
                     width: '5em',
                     height: '5em',
+                    padding: '0.25em',
                   }}
                 >
                   {board.title}
