@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
-import { CrosswordBoard } from "../../types";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -9,17 +8,22 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/hooks";
+import { postBoard } from "../../redux/boardSlice";
+import { useAppDispatch } from "../../redux/hooks";
+import { CrosswordBoard } from "../../types";
 
 interface DialogProps {
   isOpen: boolean;
-  handleCreate: (board: CrosswordBoard) => void;
   handleClose: () => void;
 }
 
 function CreateDialog(props: DialogProps) {
-  const { isOpen, handleCreate, handleClose } = props;
+  const { isOpen, handleClose } = props;
   const { user } = useAuth();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const [title, setTitle] = useState<string>('');
   const [width, setWidth] = useState<number>(15);
@@ -30,19 +34,24 @@ function CreateDialog(props: DialogProps) {
       throw Error("Cannot create a board without a user")
     }
     const cells = [];
-    for (let i = 0; i < width; i++) {
+    for (let i = 0; i < height; i++) {
       const row = [];
-      for (let j = 0; j < height; j++) {
+      for (let j = 0; j < width; j++) {
         row.push({});
       }
       cells.push(row);
     }
-    handleCreate({
-      title,
-      cells,
-      userId: user.getUsername(),
-    })
-    handleClose();
+    dispatch(
+      postBoard({
+        title,
+        cells,
+        userId: user.getUsername(),
+      })
+    ).then((response) => {
+      const { payload } = response
+      const board = payload as CrosswordBoard;
+      navigate(`/${board.id}`)
+    });
   }
 
 
@@ -66,6 +75,8 @@ function CreateDialog(props: DialogProps) {
               variant="filled"
               value={title}
               className="value"
+              style={{ width: '100%' }}
+              label="title"
               onChange={(event) => {
                 setTitle(event.target.value);
               }}
@@ -76,6 +87,8 @@ function CreateDialog(props: DialogProps) {
               variant="filled"
               value={width || ''}
               className="value"
+              style={{ width: '100%' }}
+              label="Width"
               select
               onChange={(event) => {
                 const val = event.target.value;
@@ -98,6 +111,8 @@ function CreateDialog(props: DialogProps) {
               variant="filled"
               value={height || ''}
               className="value"
+              style={{ width: '100%' }}
+              label="Height"
               select
               onChange={(event) => {
                 const val = event.target.value;

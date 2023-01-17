@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
-import { fetchBoards, postBoard } from "../../redux/boardSlice";
+import { fetchBoards } from "../../redux/boardSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Paper from "@mui/material/Paper";
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
 import CreateDialog from "../createdialog";
-import { CrosswordBoard } from "../../types";
 import { useAuth } from "../../auth/hooks";
 
 function List() {
@@ -17,10 +16,10 @@ function List() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && !boards.length) {
       dispatch(fetchBoards());
     }
-  }, [dispatch, user]);
+  }, [dispatch, user, boards]);
 
   return (
     <>
@@ -30,16 +29,17 @@ function List() {
         justifyContent="center"
         alignItems="center"
         spacing={4}
+        style={{ margin: '1em', maxWidth: '800px' }}
       >
         {boards && boards.map(board => {
           return (
             <Link key={`${board.id}`} to={`/${board.id}`}>
-              <Grid item style={{ margin: '0.25em' }}>
+              <Grid item style={{ padding: '0.25em', margin: '0.25em' }}>
                 <Paper
                   elevation={3}
                   style={{
-                    width: '5em',
-                    height: '5em',
+                    width: '6em',
+                    height: '6em',
                     padding: '0.25em',
                   }}
                 >
@@ -61,9 +61,6 @@ function List() {
       </Button>
       <CreateDialog
         isOpen={isOpen}
-        handleCreate={(board: CrosswordBoard) => {
-          dispatch(postBoard(board));
-        }}
         handleClose={() => { setIsOpen(false) }}
       />
     </>

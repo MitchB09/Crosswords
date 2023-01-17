@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import api from '../api'
-import { useSnackbar } from '../components/snackbar/hooks';
 import { CrosswordBoard, BoardMode, CrosswordCell } from '../types';
 import type { RootState } from './store'
 
@@ -34,8 +33,12 @@ export interface UpdateBoardRequest {
   shareCode?: string,
 }
 
+export interface DeleteBoardRequest {
+  id: string,
+}
+
 export const fetchBoards = createAsyncThunk('board/fetchBoards', async () => {
-  const { data } = await api.get(`/boards`);
+  const { data } = await api.get<CrosswordBoard[]>(`/boards`);
   return data;
 });
 
@@ -45,12 +48,12 @@ export const fetchBoard = createAsyncThunk('board/fetchBoard', async (req: GetBo
   if (shareCode) {
     params = { ...params, shareCode: shareCode }
   }
-  const { data } = await api.get(`/boards/${id}`, { params: params });
+  const { data } = await api.get<CrosswordBoard>(`/boards/${id}`, { params: params });
   return data;
 });
 
 export const postBoard = createAsyncThunk('board/postBoard', async (board: CrosswordBoard) => {
-  const { data } = await api.post('/boards', board);
+  const { data } = await api.post<string>('/boards', board);
   board.id = data;
   return board;
 });
@@ -63,6 +66,12 @@ export const putBoard = createAsyncThunk('board/putBoard', async (req: UpdateBoa
   }
   await api.put(`/boards/${board.id}`, board, { params: params });
   return board;
+});
+
+export const deleteBoard = createAsyncThunk('board/deleteBoard', async (req: DeleteBoardRequest) => {
+  const { id } = req;
+  await api.delete(`/boards/${id}`);
+  return id;
 });
 
 
@@ -124,6 +133,7 @@ export const boardSlice = createSlice({
       .addCase(postBoard.fulfilled, (state, action) => {
         state.status = 'idle';
         state.boards = [...state.boards, action.payload];
+        state.mode = BoardMode.CONSTRUCTION;
       })
       .addCase(postBoard.rejected, (state) => {
         state.status = 'failed';
@@ -135,6 +145,16 @@ export const boardSlice = createSlice({
         state.status = 'idle';
       })
       .addCase(putBoard.rejected, (state) => {
+        state.status = 'failed';
+      })
+      .addCase(deleteBoard.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(deleteBoard.fulfilled, (state, action) => {
+        state.status = 'idle';
+        state.boards = state.boards.filter(item => item.id !== action.payload)
+      })
+      .addCase(deleteBoard.rejected, (state) => {
         state.status = 'failed';
       });
   },

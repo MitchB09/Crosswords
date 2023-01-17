@@ -68,7 +68,7 @@ Resources:
       UserPoolId: !Ref UserPool
 
   AutoApproveUser:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambdas/cognito/auto-approve
       Policies:
@@ -113,7 +113,7 @@ Resources:
         MaxAge: "'600'"
 
   GetBoards:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambdas/list
       Policies:
@@ -127,7 +127,7 @@ Resources:
               - !GetAtt CrosswordTable.Arn
       Events:
         RestApiEvent:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /boards
             Method: get
@@ -137,7 +137,7 @@ Resources:
               Ref: ApiGateway
   
   GetBoard:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambdas/get
       Policies:
@@ -151,7 +151,7 @@ Resources:
               - !GetAtt CrosswordTable.Arn
       Events:
         RestApiEvent:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /boards/{id}
             Method: get
@@ -161,7 +161,7 @@ Resources:
               Ref: ApiGateway
   
   CreateUpdateBoard:
-      Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+      Type: AWS::Serverless::Function
       Properties:
         CodeUri: lambdas/create_update
         Policies:
@@ -175,7 +175,7 @@ Resources:
                   - !GetAtt CrosswordTable.Arn
         Events:
           CreateEvent:
-            Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+            Type: Api
             Properties:
               Path: /boards
               Method: post
@@ -184,7 +184,7 @@ Resources:
               RestApiId:
                 Ref: ApiGateway
           UpdateEvent:
-            Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+            Type: Api
             Properties:
               Path: /boards/{id}
               Method: put
@@ -192,6 +192,27 @@ Resources:
                 Authorizer: NONE
               RestApiId:
                 Ref: ApiGateway
+  DeleteBoard:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: lambdas/delete
+      Policies:
+      - AWSLambdaBasicExecutionRole # AWS Managed Policy
+      - Version: '2012-10-17'         # Inline Policy
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:DeleteItem
+            Resource: 
+              - !GetAtt CrosswordTable.Arn
+      Events:
+        RestApiEvent:
+          Type: Api
+          Properties:
+            Path: /boards/{id}
+            Method: delete
+            RestApiId:
+              Ref: ApiGateway
 
   S3Bucket:
     Type: AWS::S3::Bucket

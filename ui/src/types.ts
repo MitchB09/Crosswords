@@ -9,6 +9,7 @@ export interface CrosswordBoard {
   title?: string,
   cells?: CrosswordCell[][]
   date?: Date,
+  createdDate?: Date,
   lastUpdated?: Date,
 }
 

@@ -1,8 +1,14 @@
 import React, { useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import Cell from "../cell";
-import { useParams, useSearchParams } from "react-router-dom";
-import { fetchBoard, putBoard, updateBoard, setMode } from "../../redux/boardSlice";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  fetchBoard,
+  putBoard,
+  updateBoard,
+  setMode,
+  deleteBoard,
+} from "../../redux/boardSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { BoardMode, CrosswordCell } from "../../types";
 import "./board.css";
@@ -18,7 +24,8 @@ function Board() {
   const { user } = useAuth();
   const dispatch = useAppDispatch();
   const snackbar = useSnackbar();
-  let [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const shareCode = searchParams.get("shareCode");
 
@@ -37,7 +44,8 @@ function Board() {
         alignContent="center"
         justifyContent="center"
       >
-        {board && board.cells &&
+        {board &&
+          board.cells &&
           board.cells.map((row, rowIndex) => {
             return (
               <Grid
@@ -97,7 +105,14 @@ function Board() {
                       const newRow: CrosswordCell[] = [];
                       row.forEach((cell, colIndex) => {
                         let newCell: CrosswordCell;
-                        if (board.cells && cell.value !== '-' && (rowIndex === 0 || colIndex === 0 || board.cells[rowIndex -1][colIndex].value === '-'  || board.cells[rowIndex][colIndex-1].value === '-' )) {
+                        if (
+                          board.cells &&
+                          cell.value !== "-" &&
+                          (rowIndex === 0 ||
+                            colIndex === 0 ||
+                            board.cells[rowIndex - 1][colIndex].value === "-" ||
+                            board.cells[rowIndex][colIndex - 1].value === "-")
+                        ) {
                           newCell = { ...cell, number: number };
                           number++;
                         } else {
@@ -140,36 +155,57 @@ function Board() {
               if (!board) {
                 throw Error("No board selected");
               }
-              dispatch(putBoard({ board, shareCode: shareCode || undefined }))
-                .then(() => snackbar.addSuccess('Saved'));
+              dispatch(
+                putBoard({ board, shareCode: shareCode || undefined })
+              ).then(() => snackbar.addSuccess("Saved"));
             }}
           >
             Save
           </Button>
         </Grid>
         {user && board && user.getUsername() === board?.userId && (
-          <Grid item>
-            <Button
-              variant="contained"
-              style={{ width: "100%" }}
-              onClick={() => {
-                navigator.clipboard
-                  .writeText(
-                    `${window.location}?shareCode=${btoa(user?.getUsername())}`
-                  )
-                  .then(
-                    () => {
-                      snackbar.addSuccess('Copied');
-                    },
-                    () => {
-                      snackbar.addError('Failed to Copy');
-                    }
-                  );
-              }}
-            >
-              Share
-            </Button>
-          </Grid>
+          <>
+            <Grid item>
+              <Button
+                variant="contained"
+                style={{ width: "100%" }}
+                onClick={() => {
+                  navigator.clipboard
+                    .writeText(
+                      `${window.location}?shareCode=${btoa(
+                        user?.getUsername()
+                      )}`
+                    )
+                    .then(
+                      () => {
+                        snackbar.addSuccess("Copied");
+                      },
+                      () => {
+                        snackbar.addError("Failed to Copy");
+                      }
+                    );
+                }}
+              >
+                Share
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                style={{ width: "100%" }}
+                onClick={() => {
+                  if (!board || !board.id) {
+                    throw Error("No board selected");
+                  }
+                  dispatch(
+                    deleteBoard({ id: board.id })
+                  ).then(() => navigate("/"));
+                }}
+              >
+                Delete
+              </Button>
+            </Grid>
+          </>
         )}
       </Grid>
     </>

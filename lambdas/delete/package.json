@@ -1,7 +1,7 @@
 {
-  "name": "create-update-board",
+  "name": "delete-board",
   "version": "0.0.1",
-  "description": "Create or Update board from DynamoDB ",
+  "description": "Delete Board from DynamoDB",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,7 +9,6 @@
   "author": "mitch.bilensky",
   "license": "ISC",
   "dependencies": {
-    "crypto-random-string": "^3.3.1",
     "jwt-decode": "^3.1.2"
   }
 }
