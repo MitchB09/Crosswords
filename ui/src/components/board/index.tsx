@@ -10,7 +10,7 @@ import {
   deleteBoard,
 } from "../../redux/boardSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { BoardMode, CrosswordCell } from "../../types";
+import { BoardMode, CellMode, CrosswordCell } from "../../types";
 import "./board.css";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -56,11 +56,11 @@ function Board() {
                 alignContent="center"
                 justifyContent="center"
               >
-                {row.map((column, columnIndex) => {
+                {row.map((cell, columnIndex) => {
                   return (
                     <Cell
                       key={`${rowIndex}.${columnIndex}`}
-                      cell={{ value: column.value, number: column.number }}
+                      cell={cell}
                       mode={mode}
                       row={rowIndex}
                       column={columnIndex}
@@ -99,7 +99,6 @@ function Board() {
                 onClick={() => {
                   if (board?.cells) {
                     const cells: CrosswordCell[][] = [];
-                    console.log("Number");
                     let number = 1;
                     board.cells.forEach((row, rowIndex) => {
                       const newRow: CrosswordCell[] = [];
@@ -107,11 +106,14 @@ function Board() {
                         let newCell: CrosswordCell;
                         if (
                           board.cells &&
-                          cell.value !== "-" &&
+                          //cell.value !== "-" && 
+                          cell.mode !== CellMode.FILLED &&
                           (rowIndex === 0 ||
                             colIndex === 0 ||
                             board.cells[rowIndex - 1][colIndex].value === "-" ||
-                            board.cells[rowIndex][colIndex - 1].value === "-")
+                            board.cells[rowIndex - 1][colIndex].mode === CellMode.FILLED ||
+                            board.cells[rowIndex][colIndex - 1].value === "-" ||
+                            board.cells[rowIndex][colIndex - 1].mode === CellMode.FILLED)
                         ) {
                           newCell = { ...cell, number: number };
                           number++;

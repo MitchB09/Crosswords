@@ -8,8 +8,20 @@
 }
 
 .block {
-  border: 1px solid black;
   background-color: black;
+  height: 2em;
+  width: 2em;
+}
+
+.circled {
+  border: 1px solid black;
+  border-radius: 1em;
+  height: 2em;
+  width: 2em;
+}
+
+.shaded {
+  background-color: lightgray;
   height: 2em;
   width: 2em;
 }

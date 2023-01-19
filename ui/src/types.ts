@@ -1,6 +1,20 @@
+
+export enum BoardMode {
+  CONSTRUCTION,
+  FILLING
+}
+
+
+export enum CellMode {
+  FILLED,
+  CIRCLED,
+  SHADED,
+}
+
 export interface CrosswordCell {
   value?: string
   number?: number
+  mode?: CellMode
 }
 
 export interface CrosswordBoard {
@@ -11,11 +25,6 @@ export interface CrosswordBoard {
   date?: Date,
   createdDate?: Date,
   lastUpdated?: Date,
-}
-
-export enum BoardMode {
-  CONSTRUCTION,
-  FILLING
 }
 
 export interface User {
