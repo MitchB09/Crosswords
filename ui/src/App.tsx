@@ -7,6 +7,7 @@ import Header from "./components/header";
 import List from "./components/list";
 import Login from "./components/login";
 import SnackbarProvider from "./components/snackbar/SnackbarProvider";
+import Test from "./components/test";
 
 function App() {
   const { user } = useAuth();
@@ -21,8 +22,10 @@ function App() {
               {user ? (
                 <>
                   <Route path="/login" element={<Login />} />
+                  <Route path="/test" element={<Test />} />
                   <Route path="/:id" element={<Board />} />
                   <Route path="/" element={<List />} />
+
                 </>
               ) : (
                 <>
