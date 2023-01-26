@@ -16,6 +16,10 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { useAuth } from "../../auth/hooks";
 import { useSnackbar } from "../snackbar/hooks";
+import TextField from "@mui/material/TextField";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker/DatePicker";
+import startOfDay from "date-fns/startOfDay";
+import format from "date-fns/format";
 
 function Board() {
   const { id } = useParams();
@@ -37,7 +41,57 @@ function Board() {
 
   return (
     <>
-      <Typography variant="h5">{board?.title}</Typography>
+      {board && mode === BoardMode.CONSTRUCTION && (
+        <Grid
+          container
+          direction="column"
+          alignContent="center"
+          justifyContent="center"
+          spacing={2}
+          style={{ margin: "1em" }}
+        >
+          <Grid item>
+            <TextField
+              variant="filled"
+              value={board?.title || ""}
+              onChange={(event) => {
+                dispatch(updateBoard({ ...board, title: event.target.value }));
+              }}
+              sx={{
+                width: "15em",
+                color: "success.main",
+                "& .MuiInputBase-input": {
+                  textAlign: "center",
+                },
+              }}
+            />
+          </Grid>
+          <Grid item>
+            <DatePicker
+              label="Crossword Date"
+              value={board.crosswordDate || new Date()}
+              onChange={(newValue: Date | null) => {
+                if (newValue) {
+                  dispatch(
+                    updateBoard({
+                      ...board,
+                      crosswordDate: startOfDay(newValue).toJSON() || undefined,
+                    })
+                  );
+                }
+              }}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          </Grid>
+        </Grid>
+      )}
+      {mode === BoardMode.FILLING && (
+        <Typography variant="h5">
+          {board?.title}{" "}
+          {board?.crosswordDate &&
+            format(new Date(board?.crosswordDate), "EEEE, MMMM Do yyyy")}
+        </Typography>
+      )}
       <Grid
         container
         direction="column"
@@ -106,14 +160,16 @@ function Board() {
                         let newCell: CrosswordCell;
                         if (
                           board.cells &&
-                          //cell.value !== "-" && 
+                          //cell.value !== "-" &&
                           cell.mode !== CellMode.FILLED &&
                           (rowIndex === 0 ||
                             colIndex === 0 ||
                             board.cells[rowIndex - 1][colIndex].value === "-" ||
-                            board.cells[rowIndex - 1][colIndex].mode === CellMode.FILLED ||
+                            board.cells[rowIndex - 1][colIndex].mode ===
+                              CellMode.FILLED ||
                             board.cells[rowIndex][colIndex - 1].value === "-" ||
-                            board.cells[rowIndex][colIndex - 1].mode === CellMode.FILLED)
+                            board.cells[rowIndex][colIndex - 1].mode ===
+                              CellMode.FILLED)
                         ) {
                           newCell = { ...cell, number: number };
                           number++;
@@ -199,9 +255,9 @@ function Board() {
                   if (!board || !board.id) {
                     throw Error("No board selected");
                   }
-                  dispatch(
-                    deleteBoard({ id: board.id })
-                  ).then(() => navigate("/"));
+                  dispatch(deleteBoard({ id: board.id })).then(() =>
+                    navigate("/")
+                  );
                 }}
               >
                 Delete

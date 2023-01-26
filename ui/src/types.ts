@@ -22,7 +22,7 @@ export interface CrosswordBoard {
   userId: string,
   title?: string,
   cells?: CrosswordCell[][]
-  date?: Date,
+  crosswordDate?: Date | string,
   createdDate?: Date,
   lastUpdated?: Date,
 }
