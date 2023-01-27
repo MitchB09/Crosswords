@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: simple-lists
+Description: crosswords
 
 Parameters:
   Stage:
@@ -10,7 +10,7 @@ Parameters:
 Conditions:
   IsProduction: !Equals 
     - !Ref Stage
-    - master
+    - prod
 
 Globals:
   Function:

@@ -6,6 +6,8 @@
     "start": "react-scripts start",
     "startapi": "json-server --watch tools/db.json --port 3001",
     "build": "react-scripts build",
+    "build:dev": "cross-env NODE_ENV=development react-scripts build",
+    "build:prod": "cross-env NODE_ENV=production react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -38,6 +40,7 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "json-server": "^0.17.1"
   },
   "eslintConfig": {
