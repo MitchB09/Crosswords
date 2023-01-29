@@ -7,14 +7,14 @@ import type { RootState } from './store'
 interface CrosswordBoardState {
   status: string,
   board?: CrosswordBoard,
-  boards: CrosswordBoard[],
+  boards?: CrosswordBoard[],
   mode: BoardMode,
 }
 
 const initialState: CrosswordBoardState = {
   status: 'idle',
   mode: BoardMode.FILLING,
-  boards: [],
+  boards: undefined,
 }
 
 export interface CellUpdate {
@@ -132,7 +132,7 @@ export const boardSlice = createSlice({
       })
       .addCase(postBoard.fulfilled, (state, action) => {
         state.status = 'idle';
-        state.boards = [...state.boards, action.payload];
+        state.boards = state.boards ? [...state.boards, action.payload] : [action.payload];
         state.mode = BoardMode.CONSTRUCTION;
       })
       .addCase(postBoard.rejected, (state) => {
@@ -152,7 +152,7 @@ export const boardSlice = createSlice({
       })
       .addCase(deleteBoard.fulfilled, (state, action) => {
         state.status = 'idle';
-        state.boards = state.boards.filter(item => item.id !== action.payload)
+        state.boards = state.boards?.filter(item => item.id !== action.payload)
       })
       .addCase(deleteBoard.rejected, (state) => {
         state.status = 'failed';
