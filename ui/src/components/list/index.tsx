@@ -16,7 +16,7 @@ function List() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    if (user && !boards.length) {
+    if (user && boards === undefined) {
       dispatch(fetchBoards());
     }
   }, [dispatch, user, boards]);
