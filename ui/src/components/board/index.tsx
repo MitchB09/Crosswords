@@ -50,39 +50,46 @@ function Board() {
           spacing={2}
           style={{ margin: "1em" }}
         >
-          <Grid item>
-            <TextField
-              variant="filled"
-              value={board?.title || ""}
-              onChange={(event) => {
-                dispatch(updateBoard({ ...board, title: event.target.value }));
-              }}
-              sx={{
-                width: "15em",
-                color: "success.main",
-                "& .MuiInputBase-input": {
-                  textAlign: "center",
-                },
-              }}
-            />
-          </Grid>
-          <Grid item>
-            <DatePicker
-              label="Crossword Date"
-              value={board.crosswordDate || new Date()}
-              onChange={(newValue: Date | null) => {
-                if (newValue) {
+          {board.crosswordDate && (
+            <Grid item>
+              <DatePicker
+                label="Crossword Date"
+                value={board.crosswordDate || new Date()}
+                onChange={(newValue: Date | null) => {
+                  if (newValue) {
+                    dispatch(
+                      updateBoard({
+                        ...board,
+                        crosswordDate:
+                          startOfDay(newValue).toJSON() || undefined,
+                      })
+                    );
+                  }
+                }}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </Grid>
+          )}
+          {board?.title && (
+            <Grid item>
+              <TextField
+                variant="filled"
+                value={board?.title || ""}
+                onChange={(event) => {
                   dispatch(
-                    updateBoard({
-                      ...board,
-                      crosswordDate: startOfDay(newValue).toJSON() || undefined,
-                    })
+                    updateBoard({ ...board, title: event.target.value })
                   );
-                }
-              }}
-              renderInput={(params) => <TextField {...params} />}
-            />
-          </Grid>
+                }}
+                sx={{
+                  width: "15em",
+                  color: "success.main",
+                  "& .MuiInputBase-input": {
+                    textAlign: "center",
+                  },
+                }}
+              />
+            </Grid>
+          )}
         </Grid>
       )}
       {mode === BoardMode.FILLING && (
@@ -160,14 +167,11 @@ function Board() {
                         let newCell: CrosswordCell;
                         if (
                           board.cells &&
-                          //cell.value !== "-" &&
                           cell.mode !== CellMode.FILLED &&
                           (rowIndex === 0 ||
                             colIndex === 0 ||
-                            board.cells[rowIndex - 1][colIndex].value === "-" ||
                             board.cells[rowIndex - 1][colIndex].mode ===
                               CellMode.FILLED ||
-                            board.cells[rowIndex][colIndex - 1].value === "-" ||
                             board.cells[rowIndex][colIndex - 1].mode ===
                               CellMode.FILLED)
                         ) {

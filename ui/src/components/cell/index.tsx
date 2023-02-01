@@ -116,7 +116,7 @@ function Cell(props: CellProps) {
       return <div />;
     }
   } else {
-    if (cell.value === "-" || cell.mode === CellMode.FILLED) {
+    if (cell.mode === CellMode.FILLED) {
       return (
         <div className="cell">
           <div className="block" />

@@ -15,6 +15,9 @@ import { useAppDispatch } from "../../redux/hooks";
 import { CrosswordBoard } from "../../types";
 import { startOfDay } from "date-fns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Radio from "@mui/material/Radio";
 
 interface DialogProps {
   isOpen: boolean;
@@ -27,6 +30,7 @@ function CreateDialog(props: DialogProps) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+  const [puzzleTitleType, setPuzzleTitleType] = useState<string>("date");
   const [title, setTitle] = useState<string>("");
   const [date, setDate] = useState<Date | string>(startOfDay(new Date()));
   const [width, setWidth] = useState<number>(15);
@@ -44,14 +48,19 @@ function CreateDialog(props: DialogProps) {
       }
       cells.push(row);
     }
-    dispatch(
-      postBoard({
-        title,
-        cells,
-        userId: user.getUsername(),
-        crosswordDate: date,
-      })
-    ).then((response) => {
+
+    const board: CrosswordBoard = {
+      cells,
+      userId: user.getUsername(),
+    };
+
+    if (puzzleTitleType === "date") {
+      board.crosswordDate = date;
+    } else {
+      board.title = title;
+    }
+
+    dispatch(postBoard(board)).then((response) => {
       const { payload } = response;
       const board = payload as CrosswordBoard;
       navigate(`/${board.id}`);
@@ -75,29 +84,53 @@ function CreateDialog(props: DialogProps) {
           style={{ width: "15em", margin: "0.1rem" }}
         >
           <Grid item>
-            <DatePicker
-              label="Crossword Date"
-              value={date || new Date()}
-              onChange={(newValue: Date | null) => {
-                if (newValue) {
-                  setDate(startOfDay(newValue).toJSON());
-                }
-              }}
-              renderInput={(params) => <TextField {...params} />}
-            />
-          </Grid>
-          <Grid item>
-            <TextField
-              variant="filled"
-              value={title}
-              className="value"
-              style={{ width: "100%" }}
-              label="title"
+            <RadioGroup
+              row
+              aria-labelledby="puzzle-type"
+              defaultValue="date"
+              value={puzzleTitleType}
               onChange={(event) => {
-                setTitle(event.target.value);
+                setPuzzleTitleType(event.target.value);
               }}
-            />
+              name="puzzle-type"
+            >
+              <FormControlLabel value="date" control={<Radio />} label="Date" />
+              <FormControlLabel
+                value="title"
+                control={<Radio />}
+                label="Title"
+              />
+            </RadioGroup>
           </Grid>
+          {puzzleTitleType === "date" && (
+            <Grid item>
+              {" "}
+              <DatePicker
+                label="Crossword Date"
+                value={date || new Date()}
+                onChange={(newValue: Date | null) => {
+                  if (newValue) {
+                    setDate(startOfDay(newValue).toJSON());
+                  }
+                }}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </Grid>
+          )}
+          {puzzleTitleType === "title" && (
+            <Grid item>
+              <TextField
+                variant="filled"
+                value={title}
+                className="value"
+                style={{ width: "100%" }}
+                label="title"
+                onChange={(event) => {
+                  setTitle(event.target.value);
+                }}
+              />
+            </Grid>
+          )}
           <Grid item>
             <TextField
               variant="filled"
