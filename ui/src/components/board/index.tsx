@@ -217,9 +217,13 @@ function Board() {
               if (!board) {
                 throw Error("No board selected");
               }
-              dispatch(
-                putBoard({ board, shareCode: shareCode || undefined })
-              ).then(() => snackbar.addSuccess("Saved"));
+              dispatch(putBoard({ board, shareCode: shareCode || undefined }))
+                .unwrap()
+                .then(() => snackbar.addSuccess("Saved"))
+                .catch((err) => {
+                  console.dir(err);
+                  snackbar.addError("Refresh your page!");
+                });
             }}
           >
             Save

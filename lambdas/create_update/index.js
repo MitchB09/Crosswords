@@ -6,8 +6,8 @@ exports.handler = (event, context, callback) => {
   const ddb = new AWS.DynamoDB.DocumentClient();
   let boardsTable = process.env.BOARDS_TABLE;
 
-  if (event.queryStringParameters && event.queryStringParameters['shareCode']) {
-    userId = atob(event.queryStringParameters['shareCode']);
+  if (event.queryStringParameters && event.queryStringParameters["shareCode"]) {
+    userId = atob(event.queryStringParameters["shareCode"]);
   } else if (event?.headers?.Authorization) {
     var decoded = jwt_decode(event.headers.Authorization);
     userId = decoded["cognito:username"];
@@ -27,6 +27,10 @@ exports.handler = (event, context, callback) => {
   var board = JSON.parse(event.body);
   board.userId = userId;
 
+  var params = {
+    TableName: boardsTable
+  };
+
   if (event.pathParameters && event.pathParameters.id) {
     const urlId = decodeURI(event.pathParameters.id);
     if (urlId != board.id) {
@@ -41,17 +45,23 @@ exports.handler = (event, context, callback) => {
         isBase64Encoded: false,
       });
     }
+
+    const prevLastUpdated = board.lastUpdated;
+    params = {
+      ...params,
+      ExpressionAttributeValues: {
+        ":lastUpdated": prevLastUpdated,
+      },
+      ConditionExpression: "lastUpdated = :lastUpdated",
+    };
+
   } else {
-    board.id = cryptoRandomString({ length: 10, type: 'url-safe' });
+    board.id = cryptoRandomString({ length: 10, type: "url-safe" });
     board.createdDate = Date.now();
   }
 
   board.lastUpdated = Date.now();
-
-  var params = {
-    TableName: boardsTable,
-    Item: board,
-  };
+  params = { ...params, Item: board }
 
   ddb.put(params, function (err, data) {
     if (err) {
@@ -69,7 +79,10 @@ exports.handler = (event, context, callback) => {
     } else {
       if (event.pathParameters && event.pathParameters.id) {
         callback(null, {
-          statusCode: 204,
+          statusCode: 200,
+          body: JSON.stringify({
+            lastUpdated: board.lastUpdated,
+          }),
           headers: {
             "Access-Control-Allow-Origin": "*",
           },
@@ -78,7 +91,10 @@ exports.handler = (event, context, callback) => {
       } else {
         callback(null, {
           statusCode: 201,
-          body: JSON.stringify(board.id),
+          body: JSON.stringify({
+            id: `${board.id}`,
+            lastUpdated: board.lastUpdated,
+          }),
           headers: {
             "Access-Control-Allow-Origin": "*",
           },
@@ -86,7 +102,6 @@ exports.handler = (event, context, callback) => {
         });
       }
       // successful response
-
     }
   });
 };

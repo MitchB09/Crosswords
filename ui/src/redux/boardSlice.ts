@@ -33,6 +33,14 @@ export interface UpdateBoardRequest {
   shareCode?: string,
 }
 
+export interface UpdateBoardResponse {
+  lastUpdated: Date,
+}
+
+export interface PostBoardResponse extends UpdateBoardResponse {
+  id: string,
+}
+
 export interface DeleteBoardRequest {
   id: string,
 }
@@ -53,9 +61,8 @@ export const fetchBoard = createAsyncThunk('board/fetchBoard', async (req: GetBo
 });
 
 export const postBoard = createAsyncThunk('board/postBoard', async (board: CrosswordBoard) => {
-  const { data } = await api.post<string>('/boards', board);
-  board.id = data;
-  return board;
+  const { data } = await api.post<PostBoardResponse>('/boards', board);
+  return { ...board, ...data };
 });
 
 export const putBoard = createAsyncThunk('board/putBoard', async (req: UpdateBoardRequest) => {
@@ -64,8 +71,8 @@ export const putBoard = createAsyncThunk('board/putBoard', async (req: UpdateBoa
   if (shareCode) {
     params = { ...params, shareCode: shareCode }
   }
-  await api.put(`/boards/${board.id}`, board, { params: params });
-  return board;
+  const { data } = await api.put<UpdateBoardResponse>(`/boards/${board.id}`, board, { params: params });
+  return { ...board, ...data };
 });
 
 export const deleteBoard = createAsyncThunk('board/deleteBoard', async (req: DeleteBoardRequest) => {
@@ -142,9 +149,14 @@ export const boardSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(putBoard.fulfilled, (state, action) => {
+        const { payload } = action;
+        if (state.board) {
+          state.board = { ...state.board, lastUpdated: payload.lastUpdated }
+        }
         state.status = 'idle';
       })
-      .addCase(putBoard.rejected, (state) => {
+      .addCase(putBoard.rejected, (state, action) => {
+        console.dir(action)
         state.status = 'failed';
       })
       .addCase(deleteBoard.pending, (state) => {
