@@ -96,7 +96,7 @@ function Board() {
         <Typography variant="h5">
           {board?.title}{" "}
           {board?.crosswordDate &&
-            format(new Date(board?.crosswordDate), "EEEE, MMMM Do yyyy")}
+            format(new Date(board?.crosswordDate), "EEEE, MMMM do yyyy")}
         </Typography>
       )}
       <Grid

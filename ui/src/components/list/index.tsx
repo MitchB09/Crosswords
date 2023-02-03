@@ -47,7 +47,7 @@ function List() {
                     {board.crosswordDate
                       ? format(
                           new Date(board?.crosswordDate),
-                          "EEEE, MMMM Do yyyy"
+                          "EEEE, MMMM do yyyy"
                         )
                       : board.title}
                   </Paper>
