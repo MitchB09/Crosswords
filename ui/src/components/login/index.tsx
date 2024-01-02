@@ -23,7 +23,7 @@ function Login() {
         password: signInInput.password,
       })
       .then(() => {
-        navigate("/");
+        navigate(0);
       })
       .catch((err: any) => {
         console.dir(err);

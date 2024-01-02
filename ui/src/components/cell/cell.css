@@ -7,6 +7,24 @@
   position: relative;
 }
 
+
+@media only screen and (max-width: 600px) {
+  .cell {
+    font-size: 2.625vmin
+  }
+}
+
+@media only screen and (min-width: 400px) {
+  .cell {
+    height: 2em
+  }
+
+  .value {
+    height: 2em !important;
+  }
+}
+
+
 .block {
   background-color: black;
   height: 2em;
