@@ -1,8 +1,10 @@
-const AWS = require("aws-sdk");
-const jwt_decode = require("jwt-decode");
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import jwt_decode from "jwt-decode";
 
-exports.handler = function (event, context, callback) {
-  const ddb = new AWS.DynamoDB.DocumentClient();
+export const handler = async (event) => {
+  const client = new DynamoDBClient({});
+  const docClient = DynamoDBDocumentClient.from(client);
   let boardsTable = process.env.BOARDS_TABLE;
 
   let userId = '';
@@ -12,7 +14,7 @@ exports.handler = function (event, context, callback) {
     var decoded = jwt_decode(event.headers.Authorization);
     userId = decoded["cognito:username"];
   } else {
-    callback(null, {
+    return {
       statusCode: 401,
       body: JSON.stringify({
         Error: "No Auth or share code found",
@@ -21,7 +23,7 @@ exports.handler = function (event, context, callback) {
         "Access-Control-Allow-Origin": "*",
       },
       isBase64Encoded: false,
-    });
+    };
   }
 
   var params = {
@@ -33,29 +35,27 @@ exports.handler = function (event, context, callback) {
     TableName: boardsTable,
   };
 
-  ddb.query(params, function (err, data) {
-    if (err) {
-      callback(null, {
-        statusCode: 500,
-        body: JSON.stringify({
-          Error: err.message,
-        }),
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-        isBase64Encoded: false,
-      });
-    } else {
-      // successful response
-      console.log(data);
-      callback(null, {
-        statusCode: 200,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify(data.Items),
-        isBase64Encoded: false,
-      });
+  const command = new QueryCommand(params);
+  try {
+    const data = await docClient.send(command);
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify(data.Items),
+      isBase64Encoded: false,
     }
-  });
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        Error: error.message,
+      }),
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+      isBase64Encoded: false,
+    };
+  }
 };

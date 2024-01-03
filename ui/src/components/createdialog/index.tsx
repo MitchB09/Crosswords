@@ -75,35 +75,27 @@ function CreateDialog(props: DialogProps) {
           Pick the size of the puzzle and then you'll be able to fill the grid
           and set the numbers
         </DialogContentText>
+        <RadioGroup
+          row
+          aria-labelledby="puzzle-type"
+          defaultValue="date"
+          value={puzzleTitleType}
+          onChange={(event) => {
+            setPuzzleTitleType(event.target.value);
+          }}
+          name="puzzle-type"
+        >
+          <FormControlLabel value="date" control={<Radio />} label="Date" />
+          <FormControlLabel value="title" control={<Radio />} label="Title" />
+        </RadioGroup>
         <Grid
           container
-          direction="column"
-          alignContent="stretch"
           justifyContent="center"
-          spacing={1}
-          style={{ width: "15em", margin: "0.1rem" }}
+          alignItems="stretch"
+          spacing={2}
         >
-          <Grid item>
-            <RadioGroup
-              row
-              aria-labelledby="puzzle-type"
-              defaultValue="date"
-              value={puzzleTitleType}
-              onChange={(event) => {
-                setPuzzleTitleType(event.target.value);
-              }}
-              name="puzzle-type"
-            >
-              <FormControlLabel value="date" control={<Radio />} label="Date" />
-              <FormControlLabel
-                value="title"
-                control={<Radio />}
-                label="Title"
-              />
-            </RadioGroup>
-          </Grid>
           {puzzleTitleType === "date" && (
-            <Grid item>
+            <Grid item xs={12}>
               {" "}
               <DatePicker
                 label="Crossword Date"
@@ -113,17 +105,17 @@ function CreateDialog(props: DialogProps) {
                     setDate(startOfDay(newValue).toJSON());
                   }
                 }}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => <TextField style={{ width: "100%" }} { ...params} />}
               />
             </Grid>
           )}
           {puzzleTitleType === "title" && (
-            <Grid item>
+            <Grid item xs={12}>
               <TextField
                 variant="filled"
                 value={title}
                 className="value"
-                style={{ width: "100%" }}
+                style={{ width: "100%", marginBottom: '1.5rem' }}
                 label="title"
                 onChange={(event) => {
                   setTitle(event.target.value);
@@ -131,7 +123,7 @@ function CreateDialog(props: DialogProps) {
               />
             </Grid>
           )}
-          <Grid item>
+          <Grid item xs={6}>
             <TextField
               variant="filled"
               value={width || ""}
@@ -155,7 +147,7 @@ function CreateDialog(props: DialogProps) {
               ))}
             </TextField>
           </Grid>
-          <Grid item>
+          <Grid item xs={6}>
             <TextField
               variant="filled"
               value={height || ""}

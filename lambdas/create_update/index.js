@@ -1,18 +1,22 @@
-const AWS = require("aws-sdk");
-const jwt_decode = require("jwt-decode");
-const cryptoRandomString = require("crypto-random-string");
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 
-exports.handler = (event, context, callback) => {
-  const ddb = new AWS.DynamoDB.DocumentClient();
+import jwt_decode from "jwt-decode";
+import cryptoRandomString from "crypto-random-string";
+
+export const handler = async (event) => {
+  const client = new DynamoDBClient({});
+  const docClient = DynamoDBDocumentClient.from(client);
   let boardsTable = process.env.BOARDS_TABLE;
 
+  let userId = "";
   if (event.queryStringParameters && event.queryStringParameters["shareCode"]) {
     userId = atob(event.queryStringParameters["shareCode"]);
   } else if (event?.headers?.Authorization) {
     var decoded = jwt_decode(event.headers.Authorization);
     userId = decoded["cognito:username"];
   } else {
-    callback(null, {
+    return {
       statusCode: 401,
       body: JSON.stringify({
         Error: "No Auth or share code found",
@@ -21,20 +25,20 @@ exports.handler = (event, context, callback) => {
         "Access-Control-Allow-Origin": "*",
       },
       isBase64Encoded: false,
-    });
+    };
   }
 
   var board = JSON.parse(event.body);
   board.userId = userId;
 
   var params = {
-    TableName: boardsTable
+    TableName: boardsTable,
   };
 
   if (event.pathParameters && event.pathParameters.id) {
     const urlId = decodeURI(event.pathParameters.id);
     if (urlId != board.id) {
-      callback(null, {
+      return {
         statusCode: 400,
         body: JSON.stringify({
           Error: "Path ID does not match board id",
@@ -43,7 +47,7 @@ exports.handler = (event, context, callback) => {
           "Access-Control-Allow-Origin": "*",
         },
         isBase64Encoded: false,
-      });
+      };
     }
 
     const prevLastUpdated = board.lastUpdated;
@@ -54,54 +58,51 @@ exports.handler = (event, context, callback) => {
       },
       ConditionExpression: "lastUpdated = :lastUpdated",
     };
-
   } else {
     board.id = cryptoRandomString({ length: 10, type: "url-safe" });
     board.createdDate = Date.now();
   }
 
   board.lastUpdated = Date.now();
-  params = { ...params, Item: board }
+  params = { ...params, Item: board };
 
-  ddb.put(params, function (err, data) {
-    if (err) {
-      // an error occurred
-      callback(null, {
-        statusCode: 500,
+  const command = new PutCommand(params);
+  try {
+    await docClient.send(command);
+    if (event.pathParameters && event.pathParameters.id) {
+      return {
+        statusCode: 200,
         body: JSON.stringify({
-          Error: err.message,
+          lastUpdated: board.lastUpdated,
         }),
         headers: {
           "Access-Control-Allow-Origin": "*",
         },
         isBase64Encoded: false,
-      });
+      };
     } else {
-      if (event.pathParameters && event.pathParameters.id) {
-        callback(null, {
-          statusCode: 200,
-          body: JSON.stringify({
-            lastUpdated: board.lastUpdated,
-          }),
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-          },
-          isBase64Encoded: false,
-        });
-      } else {
-        callback(null, {
-          statusCode: 201,
-          body: JSON.stringify({
-            id: `${board.id}`,
-            lastUpdated: board.lastUpdated,
-          }),
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-          },
-          isBase64Encoded: false,
-        });
-      }
-      // successful response
+      return {
+        statusCode: 201,
+        body: JSON.stringify({
+          id: `${board.id}`,
+          lastUpdated: board.lastUpdated,
+        }),
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+        isBase64Encoded: false,
+      };
     }
-  });
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        Error: error.message,
+      }),
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+      isBase64Encoded: false,
+    };
+  }
 };

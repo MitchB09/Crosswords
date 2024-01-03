@@ -147,13 +147,13 @@ function Cell(props: CellProps) {
                   })
                 );
               }}
+              inputProps={{
+                className: "value"
+              }}
               sx={{
-                height: "2em",
-                width: "2em",
                 color: "success.main",
                 "& .MuiInputBase-input": {
                   padding: "0px",
-                  height: "2em",
                   textAlign: "center",
                 },
               }}

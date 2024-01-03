@@ -24,6 +24,7 @@ function App() {
                 {user ? (
                   <>
                     <Route path="/login" element={<Login />} />
+                    <Route path="/home" element={<List />} />
                     <Route path="/:id" element={<Board />} />
                     <Route path="/" element={<List />} />
                   </>
