@@ -1,8 +1,10 @@
-const AWS = require("aws-sdk");
-const jwt_decode = require("jwt-decode");
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, DeleteCommand } from "@aws-sdk/lib-dynamodb";
+import jwt_decode from "jwt-decode";
 
-exports.handler = function (event, context, callback) {
-  const ddb = new AWS.DynamoDB.DocumentClient();
+export const handler = async (event) => {
+  const client = new DynamoDBClient({});
+  const docClient = DynamoDBDocumentClient.from(client);
   let boardsTable = process.env.BOARDS_TABLE;
 
   var decoded = jwt_decode(event.headers.Authorization);
@@ -16,29 +18,27 @@ exports.handler = function (event, context, callback) {
     },
   };
 
-  ddb.delete(params, function (err, data) {
-    if (err) {
-      // an error occurred
-      callback(null, {
-        statusCode: 500,
-        body: JSON.stringify({
-          Error: err.message,
-        }),
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-        isBase64Encoded: false,
-      });
-    } else {
-      // successful response
-      callback(null, {
-        statusCode: 200,
-        body: JSON.stringify(data),
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-        isBase64Encoded: false,
-      });
+  const command = new DeleteCommand(params);
+  try {
+    const data = await docClient.send(command);
+    return {
+      statusCode: 200,
+      body: JSON.stringify(data),
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+      isBase64Encoded: false,
     }
-  });
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        Error: error.message,
+      }),
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+      isBase64Encoded: false,
+    }
+  }
 };
