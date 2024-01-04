@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Grid, Link, Typography } from "@mui/material";
+import { Grid, Link, Typography } from "@mui/material";
 import { useAuth } from "../../auth/hooks";
 import { useNavigate } from "react-router-dom";
 
