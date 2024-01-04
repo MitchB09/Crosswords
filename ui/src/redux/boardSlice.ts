@@ -220,7 +220,6 @@ export const boardSlice = createSlice({
         state.status = "idle";
       })
       .addCase(putBoard.rejected, (state, action) => {
-        console.dir(action);
         state.status = "failed";
       })
       .addCase(deleteBoard.pending, (state) => {
