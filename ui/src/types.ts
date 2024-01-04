@@ -15,6 +15,12 @@ export interface CrosswordCell {
   value?: string
   number?: number
   mode?: CellMode
+  focused?: boolean
+}
+
+export interface CellIndex {
+  row: number;
+  column: number;
 }
 
 export interface CrosswordBoard {
@@ -25,6 +31,7 @@ export interface CrosswordBoard {
   crosswordDate?: Date | string,
   createdDate?: Date,
   lastUpdated?: Date,
+  selectedCell?: CellIndex 
 }
 
 export interface User {

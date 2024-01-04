@@ -1,9 +1,21 @@
 import React from "react";
-import { Grid, Link, Typography } from "@mui/material";
+import { Button, Grid, Link, Typography } from "@mui/material";
 import { useAuth } from "../../auth/hooks";
+import { useNavigate } from "react-router-dom";
 
 function Header() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const logOut = () => {
+    signOut()
+      .then(() => {
+        navigate("/");
+      })
+      .catch((err: any) => {
+        console.dir(err);
+      });
+  };
 
   return (
     <Grid
@@ -11,6 +23,7 @@ function Header() {
       direction="row"
       justifyContent="space-between"
       alignItems="center"
+      spacing={2}
       style={{
         padding: "4px 25px",
         marginBottom: "1em",
@@ -19,15 +32,34 @@ function Header() {
       }}
     >
       <Grid item>
-        <Link href="/" style={{ color: 'white', textDecoration: "none" }}>
+        <Link href="/" style={{ color: "white", textDecoration: "none" }}>
           <Typography variant="h5">Crosswords</Typography>
         </Link>
       </Grid>
+      <Grid flexGrow={1}></Grid>
       {user ? (
-        <Grid item>{user.getUsername()}</Grid>
+        <>
+          <Grid item>
+            <Typography variant="subtitle1">{user.getUsername()}</Typography>
+          </Grid>
+          <Grid item>
+            <Link
+              variant="subtitle1"
+              color="primary"
+              onClick={logOut}
+              style={{ color: "white", textDecoration: "none" }}
+            >
+              Log Out
+            </Link>
+          </Grid>
+        </>
       ) : (
-        <Grid>
-          <Link href="/login" style={{ color: 'white', textDecoration: "none" }}>
+        <Grid item>
+          <Link
+            href="/login"
+            variant="subtitle1"
+            style={{ color: "white", textDecoration: "none" }}
+          >
             Login
           </Link>
         </Grid>
