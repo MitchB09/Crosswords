@@ -36,7 +36,7 @@ export function useAuth() {
 
   const signIn = React.useCallback(
     async ({ username, password }: SignInInput) => {
-      setUser(await Auth.signIn(username, password));
+      setUser(await (await Auth.signIn(username, password)));
     },
     [setUser],
   );

@@ -123,8 +123,7 @@ function Board() {
                       key={`${rowIndex}.${columnIndex}`}
                       cell={cell}
                       mode={mode}
-                      row={rowIndex}
-                      column={columnIndex}
+                      index={{ row: rowIndex, column: columnIndex }}
                     />
                   );
                 })}

@@ -1,34 +1,34 @@
 import React from "react";
 import TextField from "@mui/material/TextField";
 import { updateCell } from "../../redux/boardSlice";
-import { useAppDispatch } from "../../redux/hooks";
-import { BoardMode, CellMode, CrosswordCell } from "../../types";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { BoardMode, CellIndex, CellMode, CrosswordCell } from "../../types";
 import "./cell.css";
 
 interface CellProps {
   cell: CrosswordCell;
   mode: BoardMode;
-  row: number;
-  column: number;
+  index: CellIndex;
 }
 
 function Cell(props: CellProps) {
-  const { cell, mode, row, column } = props;
+  const { cell, mode, index } = props;
 
   const dispatch = useAppDispatch();
+  const { board } = useAppSelector((state) => state.crosswordBoard);
 
   const getClassByMode = (mode?: CellMode) => {
     switch (mode) {
       case CellMode.FILLED:
-        return 'block'
+        return "block";
       case CellMode.CIRCLED:
-        return 'circled'
+        return "circled";
       case CellMode.SHADED:
-        return 'shaded'
+        return "shaded";
       default:
-        return ''
+        return "";
     }
-  }
+  };
 
   if (mode === BoardMode.CONSTRUCTION) {
     if (cell.mode === CellMode.FILLED) {
@@ -40,8 +40,7 @@ function Cell(props: CellProps) {
             event.stopPropagation();
             dispatch(
               updateCell({
-                row,
-                column,
+                index,
                 cell: { ...cell, mode: CellMode.CIRCLED },
               })
             );
@@ -59,8 +58,7 @@ function Cell(props: CellProps) {
             event.stopPropagation();
             dispatch(
               updateCell({
-                row,
-                column,
+                index,
                 cell: { ...cell, mode: CellMode.SHADED },
               })
             );
@@ -80,7 +78,7 @@ function Cell(props: CellProps) {
             event.preventDefault();
             event.stopPropagation();
             dispatch(
-              updateCell({ row, column, cell: { ...cell, mode: undefined } })
+              updateCell({ index, cell: { ...cell, mode: undefined } })
             );
           }}
         >
@@ -99,8 +97,7 @@ function Cell(props: CellProps) {
             event.stopPropagation();
             dispatch(
               updateCell({
-                row,
-                column,
+                index,
                 cell: { ...cell, mode: CellMode.FILLED },
               })
             );
@@ -133,22 +130,31 @@ function Cell(props: CellProps) {
               variant="filled"
               value={cell.value || ""}
               className="value"
+              focused={(board?.selectedCell?.row === index.row && board?.selectedCell?.column === index.column)}
+              inputRef={(input) => {
+                if (input !== null && board?.selectedCell?.row === index.row && board?.selectedCell?.column === index.column) {
+                  input.focus();
+                }
+              }}
               onChange={(event) => {
+                const { target } = event;
+                let { value: newValue } = target;
+                newValue = newValue.toUpperCase();
+                if (cell.value) {
+                  newValue = newValue.replace(cell.value, "");
+                }
                 dispatch(
                   updateCell({
-                    row,
-                    column,
+                    index,
                     cell: {
                       ...cell,
-                      value: event.target.value
-                        .charAt(event.target.value.length - 1)
-                        .toUpperCase(),
+                      value: newValue.charAt(0),
                     },
                   })
                 );
               }}
               inputProps={{
-                className: "value"
+                className: "value",
               }}
               sx={{
                 color: "success.main",

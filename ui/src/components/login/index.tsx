@@ -3,13 +3,17 @@ import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import React, { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/hooks";
 import { SignInInput } from "../../auth/types";
+import { useSnackbar } from "../snackbar/hooks";
+
 
 function Login() {
   const auth = useAuth();
   const navigate = useNavigate();
+  const snackbar = useSnackbar();
   const [signInInput, setSignInInput] = useState<SignInInput>({
     username: "",
     password: "",
@@ -23,10 +27,10 @@ function Login() {
         password: signInInput.password,
       })
       .then(() => {
-        navigate(0);
+        navigate("/home");
       })
       .catch((err: any) => {
-        console.dir(err);
+        snackbar.addError(err.message);
       });
   };
 
@@ -45,10 +49,10 @@ function Login() {
         password: signInInput.password,
       })
       .then(() => {
-        navigate("/");
+        navigate("/home");
       })
       .catch((err: any) => {
-        console.dir(err);
+        snackbar.addError(err.message);
       });
   };
 
