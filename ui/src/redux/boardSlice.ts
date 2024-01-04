@@ -11,6 +11,7 @@ import {
   CrosswordCell,
   CellMode,
   CellIndex,
+  TabMode,
 } from "../types";
 import type { RootState } from "./store";
 
@@ -109,16 +110,13 @@ export const deleteBoard = createAsyncThunk(
   }
 );
 
-const getNextOpenCell = (
-  board: CrosswordBoard,
-  currentIndex: CellIndex
-): CellIndex => {
-  const start: CellIndex = { ...currentIndex };
-  let check: CellIndex = { ...start };
-
+const getNextAcrossCell = (board: CrosswordBoard, currentIndex: CellIndex) => {
   if (!board || !board.cells) {
     return { row: 0, column: 0 };
   }
+
+  const start: CellIndex = { ...currentIndex };
+  let check: CellIndex = { ...start };
 
   while (
     board.cells[check.row][check.column].mode === CellMode.FILLED ||
@@ -140,6 +138,46 @@ const getNextOpenCell = (
   }
 
   return check;
+};
+
+const getNextDownCell = (board: CrosswordBoard, currentIndex: CellIndex) => {
+  if (!board || !board.cells) {
+    return { row: 0, column: 0 };
+  }
+
+  const start: CellIndex = { ...currentIndex };
+  let check: CellIndex = { ...start };
+
+  while (
+    board.cells[check.row][check.column].mode === CellMode.FILLED ||
+    board.cells[check.row][check.column].value
+  ) {
+    if (check.row === board.cells.length - 1) {
+      if (check.column === board.cells[0].length - 1) {
+        check = { row: 0, column: 0 };
+      } else {
+        check = { row: 0, column: check.column + 1 };
+      }
+    } else {
+      check = { ...check, row: check.row + 1 };
+    }
+
+    if (check.row === start.row && check.column === start.column) {
+      return { row: 0, column: 0 };
+    }
+  }
+
+  return check;
+};
+
+const getNextOpenCell = (
+  board: CrosswordBoard,
+  currentIndex: CellIndex
+): CellIndex => {
+  if (board.tabMode === TabMode.DOWN) {
+    return getNextDownCell(board, currentIndex)
+  }
+  return getNextAcrossCell(board, currentIndex);
 };
 
 export const boardSlice = createSlice({
