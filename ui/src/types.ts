@@ -11,6 +11,11 @@ export enum CellMode {
   SHADED,
 }
 
+export enum TabMode {
+  ACROSS,
+  DOWN,
+}
+
 export interface CrosswordCell {
   value?: string
   number?: number
@@ -31,7 +36,8 @@ export interface CrosswordBoard {
   crosswordDate?: Date | string,
   createdDate?: Date,
   lastUpdated?: Date,
-  selectedCell?: CellIndex 
+  selectedCell?: CellIndex
+  tabMode?: TabMode
 }
 
 export interface User {

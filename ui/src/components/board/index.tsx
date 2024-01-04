@@ -10,7 +10,7 @@ import {
   deleteBoard,
 } from "../../redux/boardSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { BoardMode, CellMode, CrosswordCell } from "../../types";
+import { BoardMode, CellMode, CrosswordCell, TabMode } from "../../types";
 import "./board.css";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -20,6 +20,8 @@ import TextField from "@mui/material/TextField";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker/DatePicker";
 import startOfDay from "date-fns/startOfDay";
 import format from "date-fns/format";
+import IconButton from "@mui/material/IconButton";
+import { ArrowDownward, ArrowForward } from "@mui/icons-material";
 
 function Board() {
   const { id } = useParams();
@@ -92,11 +94,28 @@ function Board() {
           )}
         </Grid>
       )}
-      {mode === BoardMode.FILLING && (
+      {board && mode === BoardMode.FILLING && (
         <Typography variant="h5">
           {board?.title}{" "}
           {board?.crosswordDate &&
             format(new Date(board?.crosswordDate), "EEEE, MMMM do yyyy")}
+          {board.tabMode === TabMode.DOWN ? (
+            <IconButton
+              onClick={() => {
+                dispatch(updateBoard({ ...board, tabMode: TabMode.ACROSS }));
+              }}
+            >
+              <ArrowDownward />
+            </IconButton>
+          ) : (
+            <IconButton
+              onClick={() => {
+                dispatch(updateBoard({ ...board, tabMode: TabMode.DOWN }));
+              }}
+            >
+              <ArrowForward />
+            </IconButton>
+          )}
         </Typography>
       )}
       <Grid
